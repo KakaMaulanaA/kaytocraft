@@ -7,3 +7,8 @@
   NODE_VERSION = "22"
   # Keep the build quiet about telemetry.
   NEXT_TELEMETRY_DISABLED = "1"
+
+# Next.js runtime (pages, API routes, login proxy). Declared explicitly so Git-based
+# builds use it too, not only drag & drop deploys.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
