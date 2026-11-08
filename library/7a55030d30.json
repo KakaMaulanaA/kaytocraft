@@ -1,0 +1,683 @@
+{
+  "name": "Gas Stove",
+  "parts": [
+    {
+      "name": "Stove_Body",
+      "shape": "box",
+      "position": [
+        0,
+        0.05,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#2b2c30",
+      "segments": 32,
+      "size": [
+        0.72,
+        0.1,
+        0.42
+      ],
+      "bevel": 0.015
+    },
+    {
+      "name": "Glass_Top",
+      "shape": "box",
+      "position": [
+        0,
+        0.106,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "glass",
+      "color": "#111214",
+      "segments": 32,
+      "size": [
+        0.72,
+        0.012,
+        0.42
+      ],
+      "bevel": 0.006
+    },
+    {
+      "name": "Burner_Base_1",
+      "shape": "lathe",
+      "position": [
+        -0.18,
+        0.112,
+        -0.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#3a3a3d",
+      "segments": 32,
+      "profile": [
+        [
+          0,
+          0
+        ],
+        [
+          0.075,
+          0
+        ],
+        [
+          0.08,
+          0.01
+        ],
+        [
+          0.06,
+          0.02
+        ],
+        [
+          0.04,
+          0.025
+        ],
+        [
+          0,
+          0.025
+        ]
+      ]
+    },
+    {
+      "name": "Burner_Cap_1",
+      "shape": "cylinder",
+      "position": [
+        -0.18,
+        0.14,
+        -0.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#1b1b1d",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.04,
+      "height": 0.012
+    },
+    {
+      "name": "Pan_Support_Ring_1",
+      "shape": "torus",
+      "position": [
+        -0.18,
+        0.155,
+        -0.02
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "radius": 0.11,
+      "tube": 0.006,
+      "arc": 360
+    },
+    {
+      "name": "Pan_Support_Arm_1_1",
+      "shape": "box",
+      "position": [
+        -0.12696699141100892,
+        0.162,
+        -0.07303300858899106
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_1_2",
+      "shape": "box",
+      "position": [
+        -0.23303300858899106,
+        0.162,
+        -0.07303300858899106
+      ],
+      "rotation": [
+        0,
+        135,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_1_3",
+      "shape": "box",
+      "position": [
+        -0.23303300858899106,
+        0.162,
+        0.03303300858899105
+      ],
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_1_4",
+      "shape": "box",
+      "position": [
+        -0.12696699141100895,
+        0.162,
+        0.03303300858899108
+      ],
+      "rotation": [
+        0,
+        315,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Knob_1",
+      "shape": "cylinder",
+      "position": [
+        -0.18,
+        0.05,
+        0.222
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "color": "#d9d9d6",
+      "segments": 32,
+      "radiusTop": 0.022,
+      "radiusBottom": 0.024,
+      "height": 0.025
+    },
+    {
+      "name": "Knob_Mark_1",
+      "shape": "box",
+      "position": [
+        -0.18,
+        0.06,
+        0.236
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#c43a2f",
+      "segments": 32,
+      "size": [
+        0.004,
+        0.02,
+        0.004
+      ],
+      "bevel": 0.001
+    },
+    {
+      "name": "Burner_Base_2",
+      "shape": "lathe",
+      "position": [
+        0.18,
+        0.112,
+        -0.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#3a3a3d",
+      "segments": 32,
+      "profile": [
+        [
+          0,
+          0
+        ],
+        [
+          0.075,
+          0
+        ],
+        [
+          0.08,
+          0.01
+        ],
+        [
+          0.06,
+          0.02
+        ],
+        [
+          0.04,
+          0.025
+        ],
+        [
+          0,
+          0.025
+        ]
+      ]
+    },
+    {
+      "name": "Burner_Cap_2",
+      "shape": "cylinder",
+      "position": [
+        0.18,
+        0.14,
+        -0.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#1b1b1d",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.04,
+      "height": 0.012
+    },
+    {
+      "name": "Pan_Support_Ring_2",
+      "shape": "torus",
+      "position": [
+        0.18,
+        0.155,
+        -0.02
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "radius": 0.11,
+      "tube": 0.006,
+      "arc": 360
+    },
+    {
+      "name": "Pan_Support_Arm_2_1",
+      "shape": "box",
+      "position": [
+        0.23303300858899106,
+        0.162,
+        -0.07303300858899106
+      ],
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_2_2",
+      "shape": "box",
+      "position": [
+        0.12696699141100892,
+        0.162,
+        -0.07303300858899106
+      ],
+      "rotation": [
+        0,
+        135,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_2_3",
+      "shape": "box",
+      "position": [
+        0.12696699141100892,
+        0.162,
+        0.03303300858899105
+      ],
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Pan_Support_Arm_2_4",
+      "shape": "box",
+      "position": [
+        0.23303300858899104,
+        0.162,
+        0.03303300858899108
+      ],
+      "rotation": [
+        0,
+        315,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#151517",
+      "segments": 32,
+      "size": [
+        0.1,
+        0.012,
+        0.012
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Knob_2",
+      "shape": "cylinder",
+      "position": [
+        0.18,
+        0.05,
+        0.222
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "color": "#d9d9d6",
+      "segments": 32,
+      "radiusTop": 0.022,
+      "radiusBottom": 0.024,
+      "height": 0.025
+    },
+    {
+      "name": "Knob_Mark_2",
+      "shape": "box",
+      "position": [
+        0.18,
+        0.06,
+        0.236
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#c43a2f",
+      "segments": 32,
+      "size": [
+        0.004,
+        0.02,
+        0.004
+      ],
+      "bevel": 0.001
+    },
+    {
+      "name": "Foot_-1-1",
+      "shape": "cylinder",
+      "position": [
+        -0.32,
+        0,
+        -0.17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.015,
+      "radiusBottom": 0.015,
+      "height": 0.012
+    },
+    {
+      "name": "Foot_-11",
+      "shape": "cylinder",
+      "position": [
+        -0.32,
+        0,
+        0.17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.015,
+      "radiusBottom": 0.015,
+      "height": 0.012
+    },
+    {
+      "name": "Foot_1-1",
+      "shape": "cylinder",
+      "position": [
+        0.32,
+        0,
+        -0.17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.015,
+      "radiusBottom": 0.015,
+      "height": 0.012
+    },
+    {
+      "name": "Foot_11",
+      "shape": "cylinder",
+      "position": [
+        0.32,
+        0,
+        0.17
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.015,
+      "radiusBottom": 0.015,
+      "height": 0.012
+    }
+  ]
+}

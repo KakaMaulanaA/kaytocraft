@@ -1,0 +1,90 @@
+[
+  {
+    "id": "a5c2a35eaa",
+    "label": "Sofa 3 Dudukan",
+    "keywords": [
+      "sofa",
+      "sofa kain",
+      "sofa 3 dudukan",
+      "couch"
+    ],
+    "type": "spec",
+    "origin": "chat",
+    "createdAt": 1794129716808,
+    "uses": 0,
+    "hasThumb": true
+  },
+  {
+    "id": "8c6703a9b5",
+    "label": "Kulkas 2 Pintu",
+    "keywords": [
+      "kulkas",
+      "lemari es",
+      "refrigerator",
+      "fridge"
+    ],
+    "type": "spec",
+    "origin": "chat",
+    "createdAt": 1794129720802,
+    "uses": 0,
+    "hasThumb": true
+  },
+  {
+    "id": "53acbb350b",
+    "label": "Pintu Kayu Panel",
+    "keywords": [
+      "pintu",
+      "pintu kayu",
+      "door",
+      "wooden door"
+    ],
+    "type": "spec",
+    "origin": "chat",
+    "createdAt": 1794129725118,
+    "uses": 0,
+    "hasThumb": true
+  },
+  {
+    "id": "7a55030d30",
+    "label": "Kompor Gas 2 Tungku",
+    "keywords": [
+      "kompor",
+      "kompor gas",
+      "stove",
+      "gas stove"
+    ],
+    "type": "spec",
+    "origin": "chat",
+    "createdAt": 1794129729185,
+    "uses": 1,
+    "hasThumb": true
+  },
+  {
+    "id": "3342fa07c6",
+    "label": "Kasur Double",
+    "keywords": [
+      "kasur",
+      "ranjang",
+      "tempat tidur",
+      "bed",
+      "kasur double"
+    ],
+    "type": "spec",
+    "origin": "chat",
+    "createdAt": 1794130014773,
+    "uses": 0,
+    "hasThumb": true
+  },
+  {
+    "id": "844846e7c5",
+    "label": "kasur",
+    "keywords": [
+      "kasur"
+    ],
+    "type": "spec",
+    "origin": "text",
+    "createdAt": 1794133373407,
+    "uses": 1,
+    "hasThumb": true
+  }
+]

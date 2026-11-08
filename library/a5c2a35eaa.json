@@ -1,0 +1,427 @@
+{
+  "name": "Sofa",
+  "parts": [
+    {
+      "name": "Sofa_Base",
+      "shape": "box",
+      "position": [
+        0,
+        0.27,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        2,
+        0.22,
+        0.86
+      ],
+      "bevel": 0.03
+    },
+    {
+      "name": "Sofa_Back_Frame",
+      "shape": "box",
+      "position": [
+        0,
+        0.62,
+        -0.34
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        2,
+        0.5,
+        0.18
+      ],
+      "bevel": 0.04
+    },
+    {
+      "name": "Seat_Cushion_1",
+      "shape": "box",
+      "position": [
+        -0.62,
+        0.45,
+        0.06
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.14,
+        0.66
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Back_Cushion_1",
+      "shape": "box",
+      "position": [
+        -0.62,
+        0.72,
+        -0.2
+      ],
+      "rotation": [
+        -10,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.46,
+        0.16
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Seat_Cushion_2",
+      "shape": "box",
+      "position": [
+        0,
+        0.45,
+        0.06
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.14,
+        0.66
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Back_Cushion_2",
+      "shape": "box",
+      "position": [
+        0,
+        0.72,
+        -0.2
+      ],
+      "rotation": [
+        -10,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.46,
+        0.16
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Seat_Cushion_3",
+      "shape": "box",
+      "position": [
+        0.62,
+        0.45,
+        0.06
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.14,
+        0.66
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Back_Cushion_3",
+      "shape": "box",
+      "position": [
+        0.62,
+        0.72,
+        -0.2
+      ],
+      "rotation": [
+        -10,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.6,
+        0.46,
+        0.16
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Armrest_L",
+      "shape": "box",
+      "position": [
+        -1,
+        0.45,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.18,
+        0.58,
+        0.86
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Armrest_R",
+      "shape": "box",
+      "position": [
+        1,
+        0.45,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "segments": 32,
+      "size": [
+        0.18,
+        0.58,
+        0.86
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Leg_LB",
+      "shape": "cylinder",
+      "position": [
+        -0.95,
+        0.08,
+        -0.36
+      ],
+      "rotation": [
+        6,
+        0,
+        -6
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.025,
+      "radiusBottom": 0.017,
+      "height": 0.16
+    },
+    {
+      "name": "Leg_LF",
+      "shape": "cylinder",
+      "position": [
+        -0.95,
+        0.08,
+        0.36
+      ],
+      "rotation": [
+        -6,
+        0,
+        -6
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.025,
+      "radiusBottom": 0.017,
+      "height": 0.16
+    },
+    {
+      "name": "Leg_RB",
+      "shape": "cylinder",
+      "position": [
+        0.95,
+        0.08,
+        -0.36
+      ],
+      "rotation": [
+        6,
+        0,
+        6
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.025,
+      "radiusBottom": 0.017,
+      "height": 0.16
+    },
+    {
+      "name": "Leg_RF",
+      "shape": "cylinder",
+      "position": [
+        0.95,
+        0.08,
+        0.36
+      ],
+      "rotation": [
+        -6,
+        0,
+        6
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.025,
+      "radiusBottom": 0.017,
+      "height": 0.16
+    },
+    {
+      "name": "Throw_Pillow_L",
+      "shape": "box",
+      "position": [
+        -0.7,
+        0.66,
+        -0.05
+      ],
+      "rotation": [
+        -12,
+        18,
+        6
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#c9a24a",
+      "segments": 32,
+      "size": [
+        0.38,
+        0.38,
+        0.12
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Throw_Pillow_R",
+      "shape": "box",
+      "position": [
+        0.72,
+        0.66,
+        -0.05
+      ],
+      "rotation": [
+        -12,
+        -16,
+        -5
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#c9a24a",
+      "segments": 32,
+      "size": [
+        0.38,
+        0.38,
+        0.12
+      ],
+      "bevel": 0.06
+    }
+  ]
+}

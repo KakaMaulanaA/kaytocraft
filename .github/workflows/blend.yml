@@ -1,0 +1,38 @@
+# Makes .blend files for the online (Netlify) version, which has no Blender.
+# Triggered by the site through the GitHub API (repository_dispatch "make-blend").
+name: Make .blend
+
+on:
+  repository_dispatch:
+    types: [make-blend]
+
+permissions:
+  contents: read
+
+jobs:
+  blend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: scripts/requirements-blend.txt
+
+      - name: Libraries Blender needs
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libxkbcommon0 libsm6 libgl1 libegl1
+
+      - name: Install Blender (bpy)
+        run: pip install -r scripts/requirements-blend.txt
+
+      - name: Convert and upload
+        env:
+          SITE: ${{ github.event.client_payload.site }}
+          ASSET_ID: ${{ github.event.client_payload.id }}
+          ASSET_NAME: ${{ github.event.client_payload.name }}
+          ASSET_FORMAT: ${{ github.event.client_payload.format }}
+          WORKER_SECRET: ${{ secrets.BLEND_WORKER_SECRET }}
+        run: python scripts/blend_worker.py

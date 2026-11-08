@@ -1,0 +1,9 @@
+# KaytoCraft 3D on Netlify (Next.js runtime is detected automatically).
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Keep the build quiet about telemetry.
+  NEXT_TELEMETRY_DISABLED = "1"

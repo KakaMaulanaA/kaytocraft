@@ -1,0 +1,350 @@
+{
+  "name": "Bed",
+  "parts": [
+    {
+      "name": "Bed_Frame",
+      "shape": "box",
+      "position": [
+        0,
+        0.25,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        1.6800000000000002,
+        0.22,
+        2.06
+      ],
+      "bevel": 0.012
+    },
+    {
+      "name": "Headboard",
+      "shape": "box",
+      "position": [
+        0,
+        0.65,
+        -1.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        1.6800000000000002,
+        0.7,
+        0.07
+      ],
+      "bevel": 0.02
+    },
+    {
+      "name": "Headboard_Panel",
+      "shape": "box",
+      "position": [
+        0,
+        0.7,
+        -0.975
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#8a7f72",
+      "segments": 32,
+      "size": [
+        1.5,
+        0.45,
+        0.03
+      ],
+      "bevel": 0.02
+    },
+    {
+      "name": "Footboard",
+      "shape": "box",
+      "position": [
+        0,
+        0.3,
+        1.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        1.6800000000000002,
+        0.32,
+        0.06
+      ],
+      "bevel": 0.015
+    },
+    {
+      "name": "Mattress",
+      "shape": "box",
+      "position": [
+        0,
+        0.48,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#efeee9",
+      "segments": 32,
+      "size": [
+        1.6,
+        0.24,
+        1.96
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Blanket",
+      "shape": "box",
+      "position": [
+        0,
+        0.61,
+        0.34
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#4f6a8a",
+      "segments": 32,
+      "size": [
+        1.6400000000000001,
+        0.06,
+        1.24
+      ],
+      "bevel": 0.03
+    },
+    {
+      "name": "Blanket_Fold",
+      "shape": "box",
+      "position": [
+        0,
+        0.645,
+        -0.08
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#4f6a8a",
+      "segments": 32,
+      "size": [
+        1.6400000000000001,
+        0.07,
+        0.2
+      ],
+      "bevel": 0.035
+    },
+    {
+      "name": "Pillow_1",
+      "shape": "box",
+      "position": [
+        -0.38,
+        0.66,
+        -0.6699999999999999
+      ],
+      "rotation": [
+        8,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#f6f4ee",
+      "segments": 32,
+      "size": [
+        0.66,
+        0.14,
+        0.42
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Pillow_2",
+      "shape": "box",
+      "position": [
+        0.38,
+        0.66,
+        -0.6699999999999999
+      ],
+      "rotation": [
+        8,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#f6f4ee",
+      "segments": 32,
+      "size": [
+        0.66,
+        0.14,
+        0.42
+      ],
+      "bevel": 0.06
+    },
+    {
+      "name": "Leg_-1-1",
+      "shape": "cylinder",
+      "position": [
+        -0.77,
+        0.07,
+        -0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.14
+    },
+    {
+      "name": "Leg_-11",
+      "shape": "cylinder",
+      "position": [
+        -0.77,
+        0.07,
+        0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.14
+    },
+    {
+      "name": "Leg_1-1",
+      "shape": "cylinder",
+      "position": [
+        0.77,
+        0.07,
+        -0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.14
+    },
+    {
+      "name": "Leg_11",
+      "shape": "cylinder",
+      "position": [
+        0.77,
+        0.07,
+        0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.14
+    }
+  ]
+}

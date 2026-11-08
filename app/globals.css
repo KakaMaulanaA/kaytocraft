@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+/* Design tokens taken from the Figma file (AssetCraft 3D - Generator & Viewport). */
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-page: #0f131c;      /* app background */
+  --color-panel: #0a0e17;     /* docked panels */
+  --color-strip: #181b25;     /* panel header / footer strips */
+  --color-field: #1c1f29;     /* inputs, cards */
+  --color-raised: #262a34;    /* active segment, hover */
+  --color-line: #31353f;      /* borders, icon wells */
+  --color-ink: #dfe2ef;       /* primary text */
+  --color-dim: #bbcabf;       /* secondary text */
+  --color-accent: #4edea3;    /* emerald accent */
+  --color-accent-deep: #10b981;
+  --color-on-accent: #003824;
+  --color-violet: #d0bcff;
+  --color-indigo: #3131c0;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-page);
+  color: var(--color-ink);
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin dark scrollbars for docked panels */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #31353f transparent;
+}
+
+.label-mono {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.2px;
+}
+
+@keyframes shimmer {
+  from { background-position: 0% 50%; }
+  to { background-position: 200% 50%; }
+}
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 2.2s linear infinite;
+}
+
+/* Small form primitives used by the Knowledge Library page */
+.inp {
+  width: 100%;
+  border-radius: 4px;
+  background: var(--color-field);
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--color-ink);
+  outline: none;
+}
+.inp::placeholder { color: color-mix(in srgb, var(--color-dim) 45%, transparent); }
+.inp:focus { box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 50%, transparent); }
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.btn-primary { background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent)); color: var(--color-on-accent); }
+.btn-secondary { background: var(--color-raised); color: var(--color-ink); }
+.btn-primary:disabled,
+.btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }

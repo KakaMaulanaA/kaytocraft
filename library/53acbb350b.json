@@ -1,0 +1,410 @@
+{
+  "name": "Wooden Door",
+  "parts": [
+    {
+      "name": "Door_Slab",
+      "shape": "box",
+      "position": [
+        0,
+        1.035,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        0.86,
+        2.03,
+        0.045
+      ],
+      "bevel": 0.004
+    },
+    {
+      "name": "Door_Panel_11",
+      "shape": "box",
+      "position": [
+        -0.19,
+        1.55,
+        0.028
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        0.3,
+        0.72,
+        0.016
+      ],
+      "bevel": 0.01
+    },
+    {
+      "name": "Door_Panel_12",
+      "shape": "box",
+      "position": [
+        0.19,
+        1.55,
+        0.028
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        0.3,
+        0.72,
+        0.016
+      ],
+      "bevel": 0.01
+    },
+    {
+      "name": "Door_Panel_21",
+      "shape": "box",
+      "position": [
+        -0.19,
+        0.62,
+        0.028
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        0.3,
+        0.82,
+        0.016
+      ],
+      "bevel": 0.01
+    },
+    {
+      "name": "Door_Panel_22",
+      "shape": "box",
+      "position": [
+        0.19,
+        0.62,
+        0.028
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "segments": 32,
+      "size": [
+        0.3,
+        0.82,
+        0.016
+      ],
+      "bevel": 0.01
+    },
+    {
+      "name": "Frame_Left",
+      "shape": "box",
+      "position": [
+        -0.465,
+        1.06,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#efe8da",
+      "segments": 32,
+      "size": [
+        0.07,
+        2.12,
+        0.14
+      ],
+      "bevel": 0.006
+    },
+    {
+      "name": "Frame_Right",
+      "shape": "box",
+      "position": [
+        0.465,
+        1.06,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#efe8da",
+      "segments": 32,
+      "size": [
+        0.07,
+        2.12,
+        0.14
+      ],
+      "bevel": 0.006
+    },
+    {
+      "name": "Frame_Top",
+      "shape": "box",
+      "position": [
+        0,
+        2.08,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#efe8da",
+      "segments": 32,
+      "size": [
+        1,
+        0.08,
+        0.14
+      ],
+      "bevel": 0.006
+    },
+    {
+      "name": "Threshold",
+      "shape": "box",
+      "position": [
+        0,
+        0.01,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "stone",
+      "segments": 32,
+      "size": [
+        0.86,
+        0.02,
+        0.16
+      ],
+      "bevel": 0.004
+    },
+    {
+      "name": "Handle_Rose",
+      "shape": "cylinder",
+      "position": [
+        0.33,
+        1,
+        0.03
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "gold",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.03,
+      "height": 0.012
+    },
+    {
+      "name": "Handle_Lever",
+      "shape": "box",
+      "position": [
+        0.28,
+        1,
+        0.06
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "gold",
+      "segments": 32,
+      "size": [
+        0.12,
+        0.02,
+        0.02
+      ],
+      "bevel": 0.008
+    },
+    {
+      "name": "Keyhole_Plate",
+      "shape": "box",
+      "position": [
+        0.33,
+        0.9,
+        0.026
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "gold",
+      "segments": 32,
+      "size": [
+        0.03,
+        0.06,
+        0.006
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Hinge_1",
+      "shape": "box",
+      "position": [
+        -0.432,
+        0.25,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.1,
+        0.03
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Hinge_2",
+      "shape": "box",
+      "position": [
+        -0.432,
+        1,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.1,
+        0.03
+      ],
+      "bevel": 0.003
+    },
+    {
+      "name": "Hinge_3",
+      "shape": "box",
+      "position": [
+        -0.432,
+        1.8,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.1,
+        0.03
+      ],
+      "bevel": 0.003
+    }
+  ]
+}

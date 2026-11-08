@@ -1,0 +1,1168 @@
+{
+  "name": "kasur",
+  "parts": [
+    {
+      "name": "Leg_FL",
+      "shape": "cylinder",
+      "position": [
+        -0.7,
+        0.04,
+        0.9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Leg_FR",
+      "shape": "cylinder",
+      "position": [
+        0.7,
+        0.04,
+        0.9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Leg_BL",
+      "shape": "cylinder",
+      "position": [
+        -0.7,
+        0.04,
+        -0.9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Leg_BR",
+      "shape": "cylinder",
+      "position": [
+        0.7,
+        0.04,
+        -0.9
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.035,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Leg_ML",
+      "shape": "cylinder",
+      "position": [
+        -0.7,
+        0.04,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Leg_MR",
+      "shape": "cylinder",
+      "position": [
+        0.7,
+        0.04,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "wood",
+      "color": "#2c1d11",
+      "segments": 32,
+      "radiusTop": 0.03,
+      "radiusBottom": 0.025,
+      "height": 0.08
+    },
+    {
+      "name": "Divan_Base",
+      "shape": "box",
+      "position": [
+        0,
+        0.16,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#33363d",
+      "segments": 32,
+      "size": [
+        1.6,
+        0.16,
+        2
+      ],
+      "bevel": 0.02
+    },
+    {
+      "name": "Divan_Trim_Bottom",
+      "shape": "box",
+      "position": [
+        0,
+        0.08,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#23252a",
+      "segments": 32,
+      "size": [
+        1.62,
+        0.02,
+        2.02
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Mattress_Lower_Core",
+      "shape": "box",
+      "position": [
+        0,
+        0.35,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#4a4e57",
+      "segments": 32,
+      "size": [
+        1.58,
+        0.22,
+        1.98
+      ],
+      "bevel": 0.025
+    },
+    {
+      "name": "Mattress_Middle_Ribbon",
+      "shape": "box",
+      "position": [
+        0,
+        0.46,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#2c2f35",
+      "segments": 32,
+      "size": [
+        1.6,
+        0.02,
+        2
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Mattress_Pillowtop",
+      "shape": "box",
+      "position": [
+        0,
+        0.52,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#f3f3f0",
+      "segments": 32,
+      "size": [
+        1.56,
+        0.1,
+        1.96
+      ],
+      "bevel": 0.03
+    },
+    {
+      "name": "Pillowtop_Crown",
+      "shape": "box",
+      "position": [
+        0,
+        0.575,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#fafaf7",
+      "segments": 32,
+      "size": [
+        1.52,
+        0.03,
+        1.92
+      ],
+      "bevel": 0.015
+    },
+    {
+      "name": "Piping_Top_Front",
+      "shape": "cylinder",
+      "position": [
+        0,
+        0.57,
+        0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#e0dfd5",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 1.54
+    },
+    {
+      "name": "Piping_Top_Back",
+      "shape": "cylinder",
+      "position": [
+        0,
+        0.57,
+        -0.97
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#e0dfd5",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 1.54
+    },
+    {
+      "name": "Piping_Top_Left",
+      "shape": "cylinder",
+      "position": [
+        -0.77,
+        0.57,
+        0
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#e0dfd5",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 1.94
+    },
+    {
+      "name": "Piping_Top_Right",
+      "shape": "cylinder",
+      "position": [
+        0.77,
+        0.57,
+        0
+      ],
+      "rotation": [
+        90,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#e0dfd5",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 1.94
+    },
+    {
+      "name": "Handle_Left_F",
+      "shape": "box",
+      "position": [
+        -0.795,
+        0.35,
+        0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#2c2f35",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.035,
+        0.2
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Handle_Left_B",
+      "shape": "box",
+      "position": [
+        -0.795,
+        0.35,
+        -0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#2c2f35",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.035,
+        0.2
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Handle_Right_F",
+      "shape": "box",
+      "position": [
+        0.795,
+        0.35,
+        0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#2c2f35",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.035,
+        0.2
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Handle_Right_B",
+      "shape": "box",
+      "position": [
+        0.795,
+        0.35,
+        -0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#2c2f35",
+      "segments": 32,
+      "size": [
+        0.02,
+        0.035,
+        0.2
+      ],
+      "bevel": 0.005
+    },
+    {
+      "name": "Vent_L1",
+      "shape": "cylinder",
+      "position": [
+        -0.795,
+        0.35,
+        0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#d0d0d0",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 0.01
+    },
+    {
+      "name": "Vent_L2",
+      "shape": "cylinder",
+      "position": [
+        -0.795,
+        0.35,
+        -0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#d0d0d0",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 0.01
+    },
+    {
+      "name": "Vent_R1",
+      "shape": "cylinder",
+      "position": [
+        0.795,
+        0.35,
+        0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#d0d0d0",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 0.01
+    },
+    {
+      "name": "Vent_R2",
+      "shape": "cylinder",
+      "position": [
+        0.795,
+        0.35,
+        -0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        90
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "color": "#d0d0d0",
+      "segments": 32,
+      "radiusTop": 0.012,
+      "radiusBottom": 0.012,
+      "height": 0.01
+    },
+    {
+      "name": "Brand_Tag",
+      "shape": "box",
+      "position": [
+        0.65,
+        0.585,
+        0.85
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#8b1e1e",
+      "segments": 32,
+      "size": [
+        0.08,
+        0.002,
+        0.12
+      ],
+      "bevel": 0
+    },
+    {
+      "name": "Tuft_Button_1",
+      "shape": "sphere",
+      "position": [
+        -0.45,
+        0.58,
+        -0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_2",
+      "shape": "sphere",
+      "position": [
+        0,
+        0.58,
+        -0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_3",
+      "shape": "sphere",
+      "position": [
+        0.45,
+        0.58,
+        -0.4
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_4",
+      "shape": "sphere",
+      "position": [
+        -0.22,
+        0.58,
+        -0.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_5",
+      "shape": "sphere",
+      "position": [
+        0.22,
+        0.58,
+        -0.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_6",
+      "shape": "sphere",
+      "position": [
+        -0.45,
+        0.58,
+        0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_7",
+      "shape": "sphere",
+      "position": [
+        0,
+        0.58,
+        0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_8",
+      "shape": "sphere",
+      "position": [
+        0.45,
+        0.58,
+        0.1
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_9",
+      "shape": "sphere",
+      "position": [
+        -0.22,
+        0.58,
+        0.35
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Tuft_Button_10",
+      "shape": "sphere",
+      "position": [
+        0.22,
+        0.58,
+        0.35
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#dedcd4",
+      "segments": 32,
+      "radius": 0.014
+    },
+    {
+      "name": "Pillow_Left_Base",
+      "shape": "box",
+      "position": [
+        -0.42,
+        0.65,
+        -0.68
+      ],
+      "rotation": [
+        12,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#ffffff",
+      "segments": 32,
+      "size": [
+        0.65,
+        0.14,
+        0.45
+      ],
+      "bevel": 0.04
+    },
+    {
+      "name": "Pillow_Left_Center",
+      "shape": "box",
+      "position": [
+        -0.42,
+        0.66,
+        -0.68
+      ],
+      "rotation": [
+        12,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#fafafa",
+      "segments": 32,
+      "size": [
+        0.55,
+        0.16,
+        0.35
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Pillow_Right_Base",
+      "shape": "box",
+      "position": [
+        0.42,
+        0.65,
+        -0.68
+      ],
+      "rotation": [
+        12,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#ffffff",
+      "segments": 32,
+      "size": [
+        0.65,
+        0.14,
+        0.45
+      ],
+      "bevel": 0.04
+    },
+    {
+      "name": "Pillow_Right_Center",
+      "shape": "box",
+      "position": [
+        0.42,
+        0.66,
+        -0.68
+      ],
+      "rotation": [
+        12,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#fafafa",
+      "segments": 32,
+      "size": [
+        0.55,
+        0.16,
+        0.35
+      ],
+      "bevel": 0.05
+    },
+    {
+      "name": "Deco_Cushion",
+      "shape": "box",
+      "position": [
+        0,
+        0.66,
+        -0.48
+      ],
+      "rotation": [
+        28,
+        -8,
+        5
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#c4a37b",
+      "segments": 32,
+      "size": [
+        0.4,
+        0.12,
+        0.4
+      ],
+      "bevel": 0.04
+    },
+    {
+      "name": "Deco_Cushion_Button",
+      "shape": "sphere",
+      "position": [
+        0,
+        0.72,
+        -0.45
+      ],
+      "rotation": [
+        28,
+        -8,
+        5
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#8c6b45",
+      "segments": 32,
+      "radius": 0.015
+    },
+    {
+      "name": "Bed_Runner_Main",
+      "shape": "box",
+      "position": [
+        0,
+        0.59,
+        0.65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#5b6770",
+      "segments": 32,
+      "size": [
+        1.62,
+        0.03,
+        0.48
+      ],
+      "bevel": 0.01
+    },
+    {
+      "name": "Bed_Runner_Drop_Left",
+      "shape": "box",
+      "position": [
+        -0.8,
+        0.48,
+        0.65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#5b6770",
+      "segments": 32,
+      "size": [
+        0.03,
+        0.22,
+        0.48
+      ],
+      "bevel": 0.008
+    },
+    {
+      "name": "Bed_Runner_Drop_Right",
+      "shape": "box",
+      "position": [
+        0.8,
+        0.48,
+        0.65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#5b6770",
+      "segments": 32,
+      "size": [
+        0.03,
+        0.22,
+        0.48
+      ],
+      "bevel": 0.008
+    },
+    {
+      "name": "Bed_Runner_Stripe",
+      "shape": "box",
+      "position": [
+        0,
+        0.591,
+        0.65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "fabric",
+      "color": "#c4a37b",
+      "segments": 32,
+      "size": [
+        1.63,
+        0.032,
+        0.06
+      ],
+      "bevel": 0.005
+    }
+  ]
+}

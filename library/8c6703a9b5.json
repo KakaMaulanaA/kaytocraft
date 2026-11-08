@@ -1,0 +1,319 @@
+{
+  "name": "Refrigerator",
+  "parts": [
+    {
+      "name": "Fridge_Body",
+      "shape": "box",
+      "position": [
+        0,
+        0.92,
+        -0.02
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "segments": 32,
+      "size": [
+        0.7,
+        1.78,
+        0.66
+      ],
+      "bevel": 0.02
+    },
+    {
+      "name": "Freezer_Door",
+      "shape": "box",
+      "position": [
+        0,
+        1.52,
+        0.33
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "segments": 32,
+      "size": [
+        0.69,
+        0.52,
+        0.05
+      ],
+      "bevel": 0.015
+    },
+    {
+      "name": "Fridge_Door",
+      "shape": "box",
+      "position": [
+        0,
+        0.66,
+        0.33
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "segments": 32,
+      "size": [
+        0.69,
+        1.18,
+        0.05
+      ],
+      "bevel": 0.015
+    },
+    {
+      "name": "Door_Gap",
+      "shape": "box",
+      "position": [
+        0,
+        1.255,
+        0.31
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "size": [
+        0.7,
+        0.012,
+        0.02
+      ],
+      "bevel": 0.004
+    },
+    {
+      "name": "Handle_Freezer",
+      "shape": "box",
+      "position": [
+        0.29,
+        1.42,
+        0.38
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "segments": 32,
+      "size": [
+        0.03,
+        0.3,
+        0.035
+      ],
+      "bevel": 0.012
+    },
+    {
+      "name": "Handle_Fridge",
+      "shape": "box",
+      "position": [
+        0.29,
+        1,
+        0.38
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "metal",
+      "segments": 32,
+      "size": [
+        0.03,
+        0.45,
+        0.035
+      ],
+      "bevel": 0.012
+    },
+    {
+      "name": "Foot_-1-1",
+      "shape": "cylinder",
+      "position": [
+        -0.3,
+        0.02,
+        -0.27
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.02,
+      "radiusBottom": 0.02,
+      "height": 0.04
+    },
+    {
+      "name": "Foot_-11",
+      "shape": "cylinder",
+      "position": [
+        -0.3,
+        0.02,
+        0.27
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.02,
+      "radiusBottom": 0.02,
+      "height": 0.04
+    },
+    {
+      "name": "Foot_1-1",
+      "shape": "cylinder",
+      "position": [
+        0.3,
+        0.02,
+        -0.27
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.02,
+      "radiusBottom": 0.02,
+      "height": 0.04
+    },
+    {
+      "name": "Foot_11",
+      "shape": "cylinder",
+      "position": [
+        0.3,
+        0.02,
+        0.27
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "rubber",
+      "segments": 32,
+      "radiusTop": 0.02,
+      "radiusBottom": 0.02,
+      "height": 0.04
+    },
+    {
+      "name": "Kick_Plate",
+      "shape": "box",
+      "position": [
+        0,
+        0.06,
+        0.3
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "plastic",
+      "color": "#3a3b3e",
+      "segments": 32,
+      "size": [
+        0.66,
+        0.05,
+        0.02
+      ],
+      "bevel": 0.004
+    },
+    {
+      "name": "Display",
+      "shape": "box",
+      "position": [
+        -0.18,
+        1.6,
+        0.358
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "material": "glow",
+      "color": "#7fd6ff",
+      "segments": 32,
+      "size": [
+        0.12,
+        0.06,
+        0.006
+      ],
+      "bevel": 0.003
+    }
+  ]
+}
