@@ -106,28 +106,38 @@ const bufferedFetch: typeof fetch = async (input, init) => {
 };
 
 class BlobsKV implements KV {
-  private store: Store | null = null;
   constructor(private name: string) {}
-  // Created on first use: Netlify provides the Blobs context per request.
-  private get storeP() {
-    this.store ??= getStore({ name: this.name, consistency: "strong", fetch: bufferedFetch });
-    return Promise.resolve(this.store);
+  /**
+   * A fresh Store for every operation: Netlify hands each request a short-lived Blobs token,
+   * so a Store kept from an earlier request fails later with "Token expired" (401).
+   * Transient errors get up to two retries.
+   */
+  private async run<T>(op: (s: Store) => Promise<T>): Promise<T> {
+    const fresh = () => getStore({ name: this.name, consistency: "strong", fetch: bufferedFetch });
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await op(fresh());
+      } catch (e) {
+        const status = (e as { status?: number })?.status;
+        const retryable = status === undefined || status >= 500 || status === 401 || status === 429;
+        if (!retryable || attempt >= 2) throw e;
+        await new Promise((r) => setTimeout(r, 250 * (attempt + 1)));
+      }
+    }
   }
   async get(key: string) {
-    const s = await this.storeP;
-    const ab = (await s.get(safeKey(key), { type: "arrayBuffer" })) as ArrayBuffer | null;
+    const ab = (await this.run((s) => s.get(safeKey(key), { type: "arrayBuffer" }))) as ArrayBuffer | null;
     return ab ? Buffer.from(ab) : null;
   }
   async set(key: string, data: Buffer | Uint8Array | string) {
-    const s = await this.storeP;
     const body = typeof data === "string" ? data : (new Uint8Array(data).buffer as ArrayBuffer);
-    await s.set(safeKey(key), body);
+    await this.run((s) => s.set(safeKey(key), body));
   }
   async del(key: string) {
-    await (await this.storeP).delete(safeKey(key));
+    await this.run((s) => s.delete(safeKey(key)));
   }
   async list(prefix = "") {
-    const { blobs } = await (await this.storeP).list({ prefix });
+    const { blobs } = await this.run((s) => s.list({ prefix }));
     return blobs.map((b) => b.key);
   }
   async size() {
