@@ -26,7 +26,16 @@ function setup(size: number) {
   return shared;
 }
 
-export async function renderThumb(model: Object3D, size = 320): Promise<Blob | null> {
+// One render at a time: the shared canvas is read asynchronously (toBlob), so a second
+// render started meanwhile would overwrite the first picture.
+let queue: Promise<unknown> = Promise.resolve();
+export function renderThumb(model: Object3D, size = 320): Promise<Blob | null> {
+  const run = queue.then(() => renderNow(model, size));
+  queue = run.catch(() => {});
+  return run;
+}
+
+async function renderNow(model: Object3D, size: number): Promise<Blob | null> {
   try {
     const { THREE, renderer, env } = await setup(size);
     const scene = new THREE.Scene();
@@ -48,7 +57,10 @@ export async function renderThumb(model: Object3D, size = 320): Promise<Blob | n
     renderer.render(scene, camera);
     scene.remove(clone);
     return await new Promise((r) => renderer.domElement.toBlob(r, "image/png"));
-  } catch {
+  } catch (e) {
+    console.warn("[thumb] render failed", e);
+    shared = null; // try a fresh renderer next time (e.g. after a lost WebGL context)
+    (window as unknown as { __kcStale?: (e: unknown) => void }).__kcStale?.(e);
     return null;
   }
 }

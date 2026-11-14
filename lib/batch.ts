@@ -6,7 +6,7 @@ import { detectProcedural } from "./procedural/detect";
 import { groupToGlb } from "./useLibrary";
 import { appendFile } from "./upload";
 import { requestDesign } from "./designClient";
-import { renderThumb } from "./thumb";
+import { loadModel, renderThumb } from "./thumb";
 
 /** How each line of a batch is turned into a model. */
 export type BatchEngine = "auto" | "gemini" | "claude" | "tripo";
@@ -60,12 +60,18 @@ async function fromLibrary(entry: LibraryEntry, prompt: string): Promise<Asset> 
   const res = await fetch(`/api/library/${entry.id}/use`, { method: "POST", body: JSON.stringify({ prompt }) });
   const body = await res.json();
   if (!res.ok) throw new Error(body?.error || "Gagal memakai Library");
-  if (entry.hasThumb) {
-    // Reuse the library thumbnail.
-    const png = await (await fetch(`/api/library/${entry.id}/thumb`)).blob().catch(() => null);
-    if (png) await fetch(`/api/assets/${body.id}/thumb`, { method: "POST", body: png }).catch(() => {});
+  const asset = body as Asset;
+  // Thumbnail: reuse the library one, or render the model file.
+  let png: Blob | null = entry.hasThumb ? await fetch(`/api/library/${entry.id}/thumb`).then((r) => (r.ok ? r.blob() : null)).catch(() => null) : null;
+  if (!png) {
+    const model = await loadModel(`/api/assets/${asset.id}/file`, asset.format ?? "glb").catch(() => null);
+    png = model ? await renderThumb(model) : null;
   }
-  return body as Asset;
+  if (png) {
+    const t = await fetch(`/api/assets/${asset.id}/thumb`, { method: "POST", body: png }).catch(() => null);
+    if (t?.ok) asset.hasThumb = true;
+  }
+  return asset;
 }
 
 async function viaDesign(engine: "gemini" | "claude", prompt: string): Promise<Asset> {

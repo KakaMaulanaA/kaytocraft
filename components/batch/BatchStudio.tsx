@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -21,6 +20,9 @@ import { makeOne, type BatchEngine } from "@/lib/batch";
 import { useLibrary } from "@/lib/useLibrary";
 import { refreshConfig, useConfig } from "@/lib/useConfig";
 import { TRIPO_COST } from "@/lib/estimate";
+import { refreshLibrary } from "@/lib/useLibrary";
+import { parseKeywords, type LibraryEntry } from "@/lib/library";
+import { PreviewModal } from "./PreviewModal";
 
 type RowStatus = "waiting" | "running" | "done" | "failed";
 interface Row {
@@ -31,6 +33,9 @@ interface Row {
   assetId?: string;
   name?: string;
   hasThumb?: boolean;
+  format?: "glb" | "fbx";
+  /** Saved as its own Knowledge Library entry. */
+  saved?: boolean;
   error?: string;
   secs?: number;
 }
@@ -62,6 +67,8 @@ export function BatchStudio() {
   const [running, setRunning] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [zipping, setZipping] = useState(false);
+  const [saveToLib, setSaveToLib] = useState(true);
+  const [preview, setPreview] = useState<Row | null>(null);
   const abort = useRef<AbortController | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -120,6 +127,7 @@ export function BatchStudio() {
     // Local builds are instant; AI calls are kept to 2 at a time (free-tier limits).
     const workers = 2;
     let i = 0;
+    const lib = { entries: [...library.entries], dictionary: library.dictionary };
     let ok = 0;
     let bad = 0;
     const next = async (): Promise<void> => {
@@ -129,13 +137,23 @@ export function BatchStudio() {
         const t0 = Date.now();
         update(row.key, { status: "running", error: undefined });
         try {
-          const r = await makeOne(row.prompt, engine, { library, gemini, claude, signal: ctl.signal });
+          const r = await makeOne(row.prompt, engine, { library: lib, gemini, claude, signal: ctl.signal });
+          let saved = false;
+          if (saveToLib) {
+            const entry = await saveEntry(row.prompt, r.asset.name, r.asset.id, lib.entries).catch(() => null);
+            if (entry) {
+              lib.entries.push(entry);
+              saved = true;
+            }
+          }
           update(row.key, {
             status: "done",
             via: r.via,
             assetId: r.asset.id,
             name: r.asset.name,
             hasThumb: r.asset.hasThumb,
+            format: r.asset.format,
+            saved,
             secs: Math.round((Date.now() - t0) / 1000),
           });
           ok++;
@@ -149,6 +167,7 @@ export function BatchStudio() {
     setRunning(false);
     abort.current = null;
     refreshConfig();
+    refreshLibrary();
     setMsg({ ok: bad === 0, text: ctl.signal.aborted ? "Dihentikan." : `Selesai: ${ok} berhasil${bad ? `, ${bad} gagal (klik ↻ untuk coba lagi)` : ""}.` });
   }
 
@@ -302,6 +321,19 @@ export function BatchStudio() {
                 Barang yang ada di Library atau dikenal Mode Gratis dibuat instan. Sisanya dirancang Gemini{gemini ? "" : " (belum aktif)"}.
               </p>
             )}
+            <label className="mt-2 flex cursor-pointer items-start gap-2 rounded-[6px] bg-field px-2 py-1.5">
+              <input
+                type="checkbox"
+                checked={saveToLib}
+                disabled={running}
+                onChange={(e) => setSaveToLib(e.target.checked)}
+                className="mt-0.5 accent-[var(--color-accent)]"
+              />
+              <span>
+                <span className="block text-[13px] text-ink">Simpan tiap hasil ke Knowledge Library</span>
+                <span className="label-mono text-dim">satu entri per barang, kata kunci = nama barang — berikutnya gratis & instan</span>
+              </span>
+            </label>
             {engine === "tripo" && items.length > 0 && (
               <p className="label-mono mt-1.5 text-amber-300">
                 Estimasi ±{tripoCost} kredit{config?.balance != null ? ` · saldo ${config.balance}` : ""}
@@ -411,14 +443,20 @@ export function BatchStudio() {
                     >
                       {r.status === "waiting" && (r.error ? `Tertunda: ${r.error}` : "Menunggu")}
                       {r.status === "running" && "Memproses…"}
-                      {r.status === "done" && `${VIA_LABEL[r.via ?? ""] ?? r.via} · ${r.secs ?? 0}s`}
+                      {r.status === "done" && `${VIA_LABEL[r.via ?? ""] ?? r.via} · ${r.secs ?? 0}s${r.saved ? " · 📚 tersimpan" : ""}`}
                       {r.status === "failed" && (r.error ?? "Gagal")}
                     </p>
                   </div>
                   {r.status === "done" && r.assetId && (
-                    <Link href={`/?asset=${r.assetId}`} title="Lihat di Generator" className="grid size-7 place-items-center rounded text-dim hover:bg-raised hover:text-accent">
+                    <button
+                      type="button"
+                      onClick={() => setPreview(r)}
+                      title="Lihat model"
+                      aria-label={`Lihat ${r.name || r.prompt}`}
+                      className="grid size-7 place-items-center rounded text-dim hover:bg-raised hover:text-accent"
+                    >
                       <Eye size={14} />
-                    </Link>
+                    </button>
                   )}
                   {r.status === "failed" && !running && (
                     <button type="button" onClick={() => retryOne(r)} title="Coba lagi" className="grid size-7 place-items-center rounded text-dim hover:bg-raised hover:text-accent">
@@ -431,6 +469,33 @@ export function BatchStudio() {
           )}
         </div>
       </section>
+
+      {preview?.assetId && (
+        <PreviewModal
+          assetId={preview.assetId}
+          name={preview.name || preview.prompt}
+          format={preview.format}
+          hasThumb={preview.hasThumb}
+          onClose={() => setPreview(null)}
+          onThumb={() => update(preview.key, { hasThumb: true })}
+        />
+      )}
     </div>
   );
+}
+
+/**
+ * Save a batch result as its own Library entry (keywords = the line the user wrote).
+ * Skipped when an entry already has exactly that keyword.
+ */
+async function saveEntry(prompt: string, name: string, assetId: string, entries: LibraryEntry[]): Promise<LibraryEntry | null> {
+  const kw = prompt.trim().toLowerCase();
+  if (!kw || entries.some((e) => e.keywords.includes(kw))) return null;
+  const fd = new FormData();
+  fd.append("label", name);
+  fd.append("keywords", parseKeywords(kw).join(", "));
+  fd.append("origin", "batch");
+  fd.append("fromAsset", assetId);
+  const res = await fetch("/api/library", { method: "POST", body: fd });
+  return res.ok ? ((await res.json()) as LibraryEntry) : null;
 }

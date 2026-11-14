@@ -7,6 +7,7 @@ import "./globals.css";
 import { Header } from "@/components/shell/Header";
 import { Sidebar } from "@/components/shell/Sidebar";
 import { MobileNav } from "@/components/shell/MobileNav";
+import { UpdateBanner } from "@/components/shell/UpdateBanner";
 
 export const metadata: Metadata = {
   title: "KaytoCraft 3D — Generator",
@@ -27,6 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Suspense>
           <MobileNav />
         </Suspense>
+        <UpdateBanner />
       </body>
     </html>
   );
