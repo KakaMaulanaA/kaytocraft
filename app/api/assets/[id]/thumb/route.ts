@@ -1,4 +1,5 @@
 import { findThumb, getAsset, saveBuffer, updateAsset } from "@/lib/server/storage";
+import { imageType } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
@@ -20,6 +21,7 @@ export async function POST(req: Request, { params }: Ctx) {
   if (!asset) return new Response("Not found", { status: 404 });
   const buf = Buffer.from(await req.arrayBuffer());
   if (buf.byteLength > 2 * 1024 * 1024) return new Response("Too large", { status: 413 });
+  if (imageType(buf) !== "png") return new Response("Thumbnail harus PNG", { status: 400 });
   await saveBuffer(`thumbs/${id}.png`, buf);
   await updateAsset(id, { hasThumb: true });
   return Response.json({ ok: true });

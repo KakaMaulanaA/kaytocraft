@@ -66,7 +66,11 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
-    v.load(`/api/assets/${asset.id}/file`, asset.format ?? "glb")
+    const url = `/api/assets/${asset.id}/file`;
+    const fmt = asset.format ?? "glb";
+    // One quiet retry: a single hiccup on the server shouldn't show an error.
+    v.load(url, fmt)
+      .catch(() => new Promise((r) => setTimeout(r, 1200)).then(() => v.load(`${url}?retry=1`, fmt)))
       .then((st) => {
         if (cancelled) return;
         setStats(st);

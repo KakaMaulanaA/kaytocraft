@@ -417,21 +417,24 @@ function Dictionary({ dict }: { dict: Record<string, string> }) {
         Ajarkan kata/istilah yang belum dikenal. Contoh: <span className="text-ink">lemari jati</span> →{" "}
         <span className="text-ink">teak wood wardrobe</span>. Dipakai semua engine.
       </p>
-      <div className="flex gap-1">
-        <input value={word} onChange={(e) => setWord(e.target.value)} placeholder="kata Indonesia" className="inp" />
-        <input value={en} onChange={(e) => setEn(e.target.value)} placeholder="english" className="inp" />
-      </div>
-      <button
-        disabled={!word.trim() || !en.trim()}
-        onClick={async () => {
+      <form
+        className="flex flex-col gap-2"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!word.trim() || !en.trim()) return;
           await set(word, en);
           setWord("");
           setEn("");
         }}
-        className="btn-primary"
       >
-        <Save size={13} /> Tambah ke kamus
-      </button>
+        <div className="flex gap-1">
+          <input value={word} onChange={(e) => setWord(e.target.value)} placeholder="kata Indonesia" className="inp" />
+          <input value={en} onChange={(e) => setEn(e.target.value)} placeholder="english" className="inp" />
+        </div>
+        <button type="submit" disabled={!word.trim() || !en.trim()} className="btn-primary">
+          <Save size={13} /> Tambah ke kamus
+        </button>
+      </form>
       <div className="flex flex-col gap-1">
         {list.length === 0 && <p className="label-mono text-dim">Kamus masih kosong.</p>}
         {list.map(([k, v]) => (

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { AUTH_COOKIE, safeEqual, sessionToken } from "@/lib/auth";
+import { readJson } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +15,9 @@ export async function POST(req: Request) {
   const f = fails.get(ip);
   if (f && f.until > Date.now()) return NextResponse.json({ error: "Terlalu banyak percobaan. Tunggu sebentar." }, { status: 429 });
 
-  const { password: given = "" } = (await req.json().catch(() => ({}))) as { password?: string };
-  if (!safeEqual(await sessionToken(String(given)), await sessionToken(password))) {
+  const body = await readJson<{ password?: unknown }>(req);
+  const given = typeof body?.password === "string" ? body.password : "";
+  if (!given || !safeEqual(await sessionToken(given), await sessionToken(password))) {
     const n = (f?.n ?? 0) + 1;
     fails.set(ip, { n, until: n >= 5 ? Date.now() + 60_000 : 0 });
     return NextResponse.json({ error: "Password salah." }, { status: 401 });

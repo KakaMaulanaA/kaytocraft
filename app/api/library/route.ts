@@ -3,6 +3,7 @@ import { addEntry, libId, readLibrary, removeLibFiles, writeLibFile } from "@/li
 import { findThumb, getAsset, modelKey, readFile } from "@/lib/server/storage";
 import { blendSupported, glbFromBlend } from "@/lib/server/blender";
 import { takeFile } from "@/lib/server/uploads";
+import { imageType, looksLikeModel } from "@/lib/server/http";
 import { parseKeywords, type LibraryEntry } from "@/lib/library";
 import { sanitizeSpec } from "@/lib/modelSpec";
 
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
       const name = file.name.toLowerCase();
       if (name.endsWith(".glb") || name.endsWith(".fbx")) {
         entry.format = name.endsWith(".fbx") ? "fbx" : "glb";
+        if (!looksLikeModel(file.buf, entry.format)) throw new Error(`Isi file bukan model .${entry.format} yang valid.`);
         await writeLibFile(id, entry.format, file.buf);
       } else if (name.endsWith(".blend")) {
         if (!blendSupported())
@@ -85,8 +87,11 @@ export async function POST(req: Request) {
     }
     const thumb = form.get("thumb");
     if (thumb instanceof File && thumb.size < 3 * 1024 * 1024) {
-      await writeLibFile(id, "png", Buffer.from(await thumb.arrayBuffer()));
-      entry.hasThumb = true;
+      const tb = Buffer.from(await thumb.arrayBuffer());
+      if (imageType(tb) === "png") {
+        await writeLibFile(id, "png", tb);
+        entry.hasThumb = true;
+      }
     }
   } catch (e) {
     await removeLibFiles(id);

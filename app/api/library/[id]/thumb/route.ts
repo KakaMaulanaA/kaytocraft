@@ -1,4 +1,5 @@
 import { readLibFile, updateEntry, validId, writeLibFile } from "@/lib/server/library";
+import { imageType } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
@@ -15,6 +16,7 @@ export async function POST(req: Request, { params }: Ctx) {
   if (!validId(id)) return new Response(null, { status: 404 });
   const buf = Buffer.from(await req.arrayBuffer());
   if (buf.byteLength > 3 * 1024 * 1024) return new Response("Too large", { status: 413 });
+  if (imageType(buf) !== "png") return new Response("Thumbnail harus PNG", { status: 400 });
   await writeLibFile(id, "png", buf);
   await updateEntry(id, { hasThumb: true });
   return Response.json({ ok: true });

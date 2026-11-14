@@ -162,7 +162,18 @@ function AssetCard({
       <div className="relative grid size-14 shrink-0 place-items-center overflow-hidden rounded-[4px] bg-page">
         {a.hasThumb ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={`/api/assets/${a.id}/thumb?v=${a.completedAt ?? 0}`} alt="" className="size-full object-cover" />
+          <img
+            src={`/api/assets/${a.id}/thumb?v=${a.completedAt ?? 0}`}
+            alt=""
+            className="size-full object-cover"
+            onError={(e) => {
+              // retry once after a short pause (temporary server hiccup)
+              const img = e.currentTarget;
+              if (img.dataset.retried) return;
+              img.dataset.retried = "1";
+              setTimeout(() => (img.src = `${img.src}&r=1`), 1200);
+            }}
+          />
         ) : running ? (
           <Loader2 size={18} className="animate-spin text-accent" />
         ) : failed ? (

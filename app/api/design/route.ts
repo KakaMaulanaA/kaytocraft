@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { DesignError, designWith } from "@/lib/server/design";
 import { createJob, deleteJob, readJob } from "@/lib/server/designJobs";
 import { isHosted } from "@/lib/server/blobstore";
+import { badJson, readJson } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -12,7 +13,8 @@ export const maxDuration = 300;
  *  - online:    returns { jobId } at once (the design runs in a background function); poll GET ?job=<id>
  */
 export async function POST(req: Request) {
-  const body = (await req.json()) as { engine?: string; prompt?: string; image?: { mediaType?: string; data?: string } };
+  const body = await readJson<{ engine?: string; prompt?: string; image?: { mediaType?: string; data?: string } }>(req);
+  if (!body) return badJson();
   const prompt = String(body.prompt ?? "").trim().slice(0, 2000);
   const img = body.image?.data ? { mediaType: String(body.image.mediaType), data: body.image.data } : undefined;
   if (!prompt && !img) return NextResponse.json({ error: "Prompt atau gambar masih kosong." }, { status: 400 });

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { insertAsset, modelKey, newId, saveBuffer } from "@/lib/server/storage";
 import { nameFromPrompt } from "@/lib/presets";
 import { takeFile } from "@/lib/server/uploads";
+import { looksLikeModel } from "@/lib/server/http";
 import type { Asset } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,8 @@ export async function POST(req: Request) {
   if (!file) return NextResponse.json({ error: "File model tidak ada." }, { status: 400 });
   const ext = file.name.toLowerCase().endsWith(".fbx") ? "fbx" : file.name.toLowerCase().endsWith(".glb") ? "glb" : null;
   if (!ext) return NextResponse.json({ error: "Format harus .glb atau .fbx." }, { status: 400 });
+  if (!looksLikeModel(file.buf, ext))
+    return NextResponse.json({ error: `Isi file bukan model .${ext} yang valid (mungkin rusak atau hanya ganti nama).` }, { status: 400 });
 
   const src = form.get("source");
   const source =

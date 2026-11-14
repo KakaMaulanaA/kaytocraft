@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { createConcepts, getConcept, pollConcept } from "@/lib/server/concepts";
 import { engineList } from "@/lib/server/providers";
 import type { EngineId } from "@/lib/types";
+import { badJson, readJson } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
 /** Start 1–4 concept images for a prompt. */
 export async function POST(req: Request) {
-  const body = (await req.json()) as { prompt?: string; engine?: EngineId; count?: number };
+  const body = await readJson<{ prompt?: string; engine?: EngineId; count?: number }>(req);
+  if (!body) return badJson();
   const prompt = String(body.prompt ?? "").trim().slice(0, 1000);
   if (!prompt) return NextResponse.json({ error: "Prompt masih kosong." }, { status: 400 });
   const engine = engineList().find((e) => e.id === body.engine);

@@ -16,7 +16,7 @@ export async function readListFile(file: File): Promise<string[]> {
     throw new Error("Format lama (.doc/.xls) belum didukung. Simpan ulang sebagai .docx / .xlsx (File › Save As).");
   const text = new TextDecoder().decode(buf);
   const lines = text.split(/\r?\n/);
-  return clean(name.endsWith(".csv") ? lines.map((l) => splitCsv(l)[0] ?? "") : lines);
+  return clean(name.endsWith(".csv") ? bestColumn(lines.map(splitCsv)) : lines);
 }
 
 /** Split pasted text into items (one per line, commas also separate). */
@@ -107,6 +107,15 @@ function xlsxFirstColumn(buf: Uint8Array): string[] {
     if (col) return rows.map((r) => r[col] ?? "");
   }
   return [];
+}
+
+/** From a table, keep the column that holds the most text (skips a "No" column of numbers). */
+function bestColumn(rows: string[][]): string[] {
+  const count: number[] = [];
+  for (const r of rows) r.forEach((v, i) => /\p{L}/u.test(v) && (count[i] = (count[i] ?? 0) + 1));
+  let col = 0;
+  count.forEach((c, i) => c > (count[col] ?? 0) && (col = i));
+  return rows.map((r) => r[col] ?? "");
 }
 
 function splitCsv(line: string): string[] {
