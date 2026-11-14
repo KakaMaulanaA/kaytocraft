@@ -35,7 +35,9 @@ const DEFAULTS: GenerateSettings = {
 
 export function GeneratorStudio() {
   const router = useRouter();
-  const mode: GenMode = useSearchParams().get("mode") === "image" ? "image" : "text";
+  const params = useSearchParams();
+  const mode: GenMode = params.get("mode") === "image" ? "image" : "text";
+  const wantAsset = params.get("asset");
   const config = useConfig();
   const library = useLibrary();
   const [useLib, setUseLib] = useState(true);
@@ -109,10 +111,12 @@ export function GeneratorStudio() {
       .then((r) => r.json())
       .then((list: Asset[]) => {
         setAssets(list);
-        const first = list.find((a) => a.status === "ready") ?? list[0];
+        // ?asset=<id> (e.g. "Lihat" from Batch) opens that model.
+        const first = list.find((a) => a.id === wantAsset) ?? list.find((a) => a.status === "ready") ?? list[0];
         if (first) setActiveId((cur) => cur ?? first.id);
       })
       .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const upsert = useCallback((a: Asset) => {

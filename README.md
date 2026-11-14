@@ -44,6 +44,16 @@ Ajarkan barang baru sekali, lalu pakai **gratis** selamanya. Saat prompt mengand
 
 Semua tersimpan di folder `library/` (index.json, resep .json, model .glb, thumbnail .png) — gampang di-backup atau dibagikan.
 
+## Batch Synthesis (menu "Batch Synthesis")
+
+Buat banyak barang sekaligus. Drop file **.docx / .xlsx / .csv / .txt** berisi daftar barang (satu per baris atau sel; nomor, bullet, dan judul kolom seperti "Nama barang" dilewati), atau ketik daftarnya. Pilih cara membuat:
+
+- **Otomatis (gratis)** — Library → Mode Gratis → Gemini.
+- **Gemini / Claude** — semua dirancang AI.
+- **Tripo3D** — kualitas terbaik, 20 kredit per barang (estimasi & konfirmasi sebelum mulai).
+
+Semua hasil masuk Asset Vault (lengkap dengan thumbnail), bisa dibuka satu per satu (ikon mata) atau diunduh sekaligus sebagai **.zip**. Antrian berjalan di tab browser, jadi biarkan tab terbuka sampai selesai. Maksimal 200 barang per batch.
+
 ## Alur ke Blender
 
 1. **Export .GLB (Blender Ready)** → di Blender: *File › Import › glTF 2.0*.
