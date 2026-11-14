@@ -16,6 +16,7 @@ function setup(size: number) {
     const { RoomEnvironment } = await import("three/examples/jsm/environments/RoomEnvironment.js");
     const canvas = document.createElement("canvas");
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true, alpha: false });
+    canvas.addEventListener("webglcontextlost", () => (shared = null));
     renderer.setSize(size, size, false);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
@@ -29,9 +30,19 @@ function setup(size: number) {
 // One render at a time: the shared canvas is read asynchronously (toBlob), so a second
 // render started meanwhile would overwrite the first picture.
 let queue: Promise<unknown> = Promise.resolve();
+let idle: ReturnType<typeof setTimeout> | undefined;
 export function renderThumb(model: Object3D, size = 320): Promise<Blob | null> {
   const run = queue.then(() => renderNow(model, size));
   queue = run.catch(() => {});
+  // Release the GPU context when no thumbnails were made for a while.
+  clearTimeout(idle);
+  idle = setTimeout(async () => {
+    const s = await shared?.catch(() => null);
+    if (!s) return;
+    shared = null;
+    s.renderer.dispose();
+    s.renderer.forceContextLoss();
+  }, 20_000);
   return run;
 }
 

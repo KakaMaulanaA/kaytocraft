@@ -27,6 +27,7 @@ export function PreviewModal(props: {
         const { ModelViewer } = await import("@/lib/three/viewer");
         if (dead || !host.current) return;
         viewer = new ModelViewer(host.current);
+        viewer.onContextLost = () => !dead && setState({ loading: false, error: "tampilan 3D terputus — tutup lalu buka lagi" });
         const url = `/api/assets/${props.assetId}/file`;
         const fmt = props.format ?? "glb";
         const stats = await viewer.load(url, fmt).catch(async () => {

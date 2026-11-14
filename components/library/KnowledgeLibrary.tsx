@@ -55,9 +55,21 @@ export function KnowledgeLibrary() {
 
   useEffect(() => {
     let off = false;
-    import("@/lib/three/viewer").then(({ ModelViewer }) => {
-      if (!off && host.current) viewer.current = new ModelViewer(host.current);
-    });
+    import("@/lib/three/viewer")
+      .then(({ ModelViewer }) => {
+        if (off || !host.current) return;
+        const make = () => {
+          const v = new ModelViewer(host.current!);
+          // GPU context dropped: start a fresh viewer (the preview is rebuilt on the next action)
+          v.onContextLost = () => {
+            v.dispose();
+            if (!off && host.current) viewer.current = make();
+          };
+          return v;
+        };
+        viewer.current = make();
+      })
+      .catch(() => !off && setMsg({ ok: false, text: "Pratinjau 3D tidak bisa dimulai — muat ulang halaman (Ctrl+F5)." }));
     return () => {
       off = true;
       viewer.current?.dispose();

@@ -38,8 +38,15 @@ export class ModelViewer {
   shading: ShadingMode = "pbr";
   wireframe = false;
 
+  /** Called when the browser drops the WebGL context (GPU reset, too many contexts). */
+  onContextLost?: () => void;
+
   constructor(private host: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    this.renderer.domElement.addEventListener("webglcontextlost", (e) => {
+      e.preventDefault();
+      this.onContextLost?.();
+    });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -252,6 +259,9 @@ export class ModelViewer {
     this.clayMat.dispose();
     this.normalMat.dispose();
     this.renderer.dispose();
+    // Give the GPU context back right away: browsers allow only ~16 at once, and leaked
+    // contexts (one per page visit) end up "lost" — the 3D view then stays empty.
+    this.renderer.forceContextLoss();
     this.renderer.domElement.remove();
   }
 }

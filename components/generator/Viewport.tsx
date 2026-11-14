@@ -41,21 +41,58 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
   const [rotate, setRotate] = useState(false);
   const [light, setLight] = useState<LightPreset>("studio");
   const [shading, setShading] = useState<ShadingMode>("pbr");
+  // 3D engine state: `gen` bumps to rebuild the viewer after a WebGL failure.
+  const [gen, setGen] = useState(0);
+  const [glError, setGlError] = useState<string | null>(null);
+  // Bumped for every new viewer instance, so the current model is loaded into it.
+  const [viewerVer, setViewerVer] = useState(0);
 
-  // Boot three.js once (dynamic import keeps it out of the server bundle).
+
+  // Boot three.js (dynamic import keeps it out of the server bundle).
   useEffect(() => {
     let disposed = false;
-    import("@/lib/three/viewer").then(({ ModelViewer }) => {
-      if (disposed || !host.current) return;
-      viewer.current = new ModelViewer(host.current);
-      setReady(true);
-    });
+    import("@/lib/three/viewer")
+      .then(({ ModelViewer }) => {
+        if (disposed || !host.current) return;
+        const v = new ModelViewer(host.current);
+        v.onContextLost = () => setGlError("Tampilan 3D terputus (GPU browser direset).");
+        viewer.current = v;
+        setGlError(null);
+        setReady(true);
+        setViewerVer((n) => n + 1);
+      })
+      .catch((e) => {
+        if (disposed) return;
+        const msg = e instanceof Error ? e.message : String(e);
+        setGlError(
+          /dynamically imported module|Loading chunk|ChunkLoadError/i.test(msg)
+            ? "Versi web baru tersedia — muat ulang halaman."
+            : "Tampilan 3D tidak bisa dimulai (WebGL tidak tersedia).",
+        );
+      });
     return () => {
       disposed = true;
+      setReady(false);
       viewer.current?.dispose();
       viewer.current = null;
     };
-  }, []);
+  }, [gen]);
+
+  // Watchdog: a ready model that isn't loading and isn't on screen after 12 s means the 3D engine is stuck.
+  // (only while nothing is downloading — a big model can legitimately take long)
+  const waitingId = asset?.status === "ready" && asset.id !== shownId && !loadError && !loading ? asset.id : null;
+  useEffect(() => {
+    if (!waitingId) return;
+    const t = window.setTimeout(() => setGlError((cur) => cur ?? "Model belum tampil — tampilan 3D macet."), 12_000);
+    return () => window.clearTimeout(t);
+  }, [waitingId, gen]);
+
+  const restart3D = () => {
+    setGlError(null);
+    setShownAsset(null);
+    setStats(null);
+    setGen((g) => g + 1);
+  };
 
   // Load the model whenever a different ready asset is selected.
   const readyId = asset?.status === "ready" ? asset.id : null;
@@ -83,7 +120,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, readyId]);
+  }, [ready, readyId, viewerVer]);
 
   // Selected asset was deleted -> empty the scene.
   useEffect(() => {
@@ -150,6 +187,21 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
   return (
     <section className="relative flex h-full w-full min-w-0 flex-1 overflow-hidden rounded-[12px] bg-[rgba(2,6,23,0.8)]">
       <div ref={host} className="absolute inset-0" />
+      {glError && (
+        <div className="absolute inset-0 z-20 grid place-items-center bg-[rgba(2,6,23,0.85)] p-4">
+          <div className="max-w-sm rounded-[8px] border border-amber-400/30 bg-panel px-4 py-3 text-center">
+            <p className="text-[13px] font-semibold text-amber-200">{glError}</p>
+            <div className="mt-2 flex justify-center gap-2">
+              <button type="button" onClick={restart3D} className="btn-primary text-[12px]">
+                Nyalakan ulang 3D
+              </button>
+              <button type="button" onClick={() => window.location.reload()} className="btn-secondary text-[12px]">
+                Muat ulang halaman
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Top HUD */}
       <div className="pointer-events-none absolute left-2 right-2 top-2 flex items-start justify-between gap-2">
@@ -230,7 +282,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
         <div className="pointer-events-none absolute inset-0 grid place-items-center">
           {generating ? (
             <ProgressRing asset={asset!} />
-          ) : loading ? (
+          ) : loading || (asset?.status === "ready" && !shown && !loadError) ? (
             <span className="flex items-center gap-2 text-[12px] text-dim">
               <Loader2 size={16} className="animate-spin" /> Memuat model…
             </span>
