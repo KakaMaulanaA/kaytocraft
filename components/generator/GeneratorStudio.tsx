@@ -33,6 +33,12 @@ const DEFAULTS: GenerateSettings = {
   presets: [],
 };
 
+/** On phones the panels are stacked: bring the 3D view into sight. */
+function showViewportOnPhone() {
+  if (typeof window !== "undefined" && window.innerWidth < 1024)
+    document.getElementById("viewport")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 export function GeneratorStudio() {
   const router = useRouter();
   const params = useSearchParams();
@@ -361,6 +367,7 @@ export function GeneratorStudio() {
       : null;
 
   const generate = async (conceptId?: string) => {
+    showViewportOnPhone();
     if (!conceptId && libraryHit) return generateFromLibrary(libraryHit);
     if (!conceptId && settings.engine === "demo") return generateFree();
     if (!conceptId && (settings.engine === "claude" || settings.engine === "gemini")) return generateDesign(settings.engine);
@@ -432,7 +439,7 @@ export function GeneratorStudio() {
   const cost3DLabel = cost3D ? `≈${sum(cost3D)} kr · ${usd(sum(cost3D))}` : null;
 
   return (
-    <div className="flex h-full gap-2">
+    <div className="flex flex-col gap-2 lg:h-full lg:flex-row">
       <ControlPanel
         settings={settings}
         onChange={(patch) => {
@@ -458,7 +465,7 @@ export function GeneratorStudio() {
         useLibrary={useLib}
         onUseLibrary={setUseLib}
       />
-      <div className="relative flex h-full min-w-0 flex-1">
+      <div id="viewport" className="relative flex h-[62vh] min-h-[380px] min-w-0 scroll-mt-16 lg:h-full lg:min-h-0 lg:flex-1">
         <Viewport asset={active} onLoaded={onLoaded} toast={toast} />
         {boardOpen && concepts.length > 0 && (
           <ConceptBoard
@@ -484,7 +491,10 @@ export function GeneratorStudio() {
       <AssetVault
         assets={assets}
         activeId={activeId}
-        onSelect={(a) => setActiveId(a.id)}
+        onSelect={(a) => {
+          setActiveId(a.id);
+          showViewportOnPhone();
+        }}
         onDelete={remove}
         onReuse={reuse}
         onImport={importModel}

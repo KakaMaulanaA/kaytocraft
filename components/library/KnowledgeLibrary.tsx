@@ -177,9 +177,9 @@ export function KnowledgeLibrary() {
   );
 
   return (
-    <div className="flex h-full gap-2">
+    <div className="flex flex-col gap-2 lg:h-full lg:flex-row">
       {/* Add knowledge */}
-      <section className="flex h-full w-[380px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel">
+      <section className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel lg:h-full lg:w-[340px] xl:w-[380px]">
         <div className="bg-strip p-3">
           <h1 className="flex items-center gap-1.5 text-[16px] font-semibold">
             <BookOpen size={15} className="text-accent" /> Tambah Knowledge
@@ -310,7 +310,7 @@ export function KnowledgeLibrary() {
       </section>
 
       {/* Preview */}
-      <section className="relative flex h-full min-w-0 flex-1 overflow-hidden rounded-[12px] bg-[rgba(2,6,23,0.8)]">
+      <section className="relative flex h-[45vh] min-h-[300px] min-w-0 flex-1 overflow-hidden rounded-[12px] bg-[rgba(2,6,23,0.8)] lg:h-full lg:min-h-0">
         <div ref={host} className="absolute inset-0" />
         {!pending && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
@@ -331,7 +331,7 @@ export function KnowledgeLibrary() {
       </section>
 
       {/* Entries */}
-      <section className="flex h-full w-[340px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel">
+      <section className="flex max-h-[75vh] w-full shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel lg:h-full lg:max-h-none lg:w-[300px] xl:w-[340px]">
         <div className="border-b border-white/5 p-3">
           <h2 className="text-[16px] font-semibold">Isi Library ({lib.entries.length})</h2>
           <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder="Cari…" className="inp mt-2" />

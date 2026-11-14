@@ -212,9 +212,9 @@ export function BatchStudio() {
   const tripoCost = engine === "tripo" ? items.length * TRIPO_COST.text : 0;
 
   return (
-    <div className="flex h-full gap-3 overflow-hidden">
+    <div className="flex flex-col gap-2 lg:h-full lg:flex-row lg:gap-3 lg:overflow-hidden">
       {/* ------------------------------------------------ input */}
-      <section className="flex w-[380px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl">
+      <section className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl lg:w-[340px] xl:w-[380px]">
         <div className="border-b border-white/5 p-3">
           <h2 className="flex items-center gap-1.5 text-[16px] font-semibold tracking-[-0.16px]">
             <Layers size={15} className="text-accent" /> Batch Synthesis
@@ -334,7 +334,7 @@ export function BatchStudio() {
       </section>
 
       {/* ------------------------------------------------ results */}
-      <section className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl">
+      <section className="flex min-h-[50vh] min-w-0 flex-1 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl">
         <div className="flex flex-wrap items-center gap-3 border-b border-white/5 p-3">
           <h2 className="text-[16px] font-semibold tracking-[-0.16px]">Hasil</h2>
           {rows.length > 0 && (
@@ -347,14 +347,14 @@ export function BatchStudio() {
             </span>
           )}
           {rows.length > 0 && (
-            <div className="ml-auto h-1 w-40 overflow-hidden rounded-full bg-raised">
+            <div className="h-1 w-full overflow-hidden rounded-full bg-raised sm:ml-auto sm:w-40">
               <div
                 className="h-full bg-gradient-to-r from-accent-deep to-violet transition-[width]"
                 style={{ width: `${((done + failed) / rows.length) * 100}%` }}
               />
             </div>
           )}
-          <div className={`flex gap-1.5 ${rows.length ? "" : "ml-auto"}`}>
+          <div className={`flex flex-wrap gap-1.5 ${rows.length ? "" : "sm:ml-auto"}`}>
             {!running && (failed > 0 || pending > 0) && (
               <button type="button" onClick={retryFailed} className="btn-secondary flex items-center gap-1.5 text-[12px]">
                 <RotateCcw size={13} /> {failed > 0 ? "Coba lagi yang gagal" : "Lanjutkan"}

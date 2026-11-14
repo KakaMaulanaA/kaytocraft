@@ -48,7 +48,7 @@ export function AssetVault({ assets, activeId, onSelect, onDelete, onReuse, onIm
   const blendOk = config?.features?.blend ?? true;
 
   return (
-    <section className="flex h-full w-[320px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl">
+    <section id="vault" className="flex max-h-[75vh] w-full shrink-0 scroll-mt-16 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl lg:h-full lg:max-h-none lg:w-[280px] xl:w-[320px]">
       <div className="border-b border-white/5 p-3">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-1.5 text-[16px] font-semibold tracking-[-0.16px]">
@@ -204,7 +204,7 @@ function AssetCard({
             {a.stats ? `${compact(a.stats.triangles)} Tris` : formatBytes(a.fileSize ?? 0)} • {timeAgo(a.createdAt)}
           </p>
         )}
-        <div className="mt-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        <div className="mt-1 flex flex-wrap gap-1 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100">
           {a.status === "ready" && (
             <a
               href={`/api/assets/${a.id}/file?download=1`}

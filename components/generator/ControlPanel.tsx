@@ -80,7 +80,7 @@ export function ControlPanel(p: Props) {
   const fromLib = !!p.libraryHit;
 
   return (
-    <section className="flex h-full w-[360px] shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl">
+    <section className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl lg:h-full lg:w-[320px] xl:w-[360px]">
       {/* Header & pipeline switcher */}
       <div className="flex flex-col gap-2 bg-strip p-3">
         <div className="flex items-center justify-between">

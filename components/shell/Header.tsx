@@ -14,26 +14,26 @@ export function Header() {
       : "Mode Gratis (tanpa API key)";
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-white/5 bg-page px-4">
-      <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-white/5 bg-page px-3 lg:static lg:px-4">
+      <div className="flex min-w-0 items-center gap-2 lg:gap-3">
         <Link href="/" className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-accent-deep to-violet text-on-accent">
             <Box size={18} strokeWidth={2.2} />
           </span>
-          <span className="text-[16px] font-semibold tracking-[-0.16px] text-ink">KaytoCraft 3D</span>
+          <span className="whitespace-nowrap text-[15px] font-semibold tracking-[-0.16px] text-ink lg:text-[16px]">KaytoCraft 3D</span>
         </Link>
-        <span className="label-mono rounded-[2px] border border-line bg-field px-1.5 py-0.5 text-dim">
+        <span className="label-mono hidden rounded-[2px] border border-line bg-field px-1.5 py-0.5 text-dim lg:inline">
           {config?.features?.hosted ? "ONLINE" : "INTERNAL TOOL"} V0.2
         </span>
-        <span className="mx-1 h-4 w-px bg-line" />
-        <span className="flex items-center gap-1.5 rounded-full bg-field px-2 py-0.5">
-          <span className={`size-2 rounded-full ${live ? "bg-accent" : "bg-amber-400"}`} />
-          <span className={`label-mono ${live ? "text-accent" : "text-amber-300"}`}>{statusLabel}</span>
+        <span className="mx-1 hidden h-4 w-px bg-line lg:block" />
+        <span className="flex min-w-0 items-center gap-1.5 rounded-full bg-field px-2 py-0.5">
+          <span className={`size-2 shrink-0 rounded-full ${live ? "bg-accent" : "bg-amber-400"}`} />
+          <span className={`label-mono truncate ${live ? "text-accent" : "text-amber-300"}`}>{statusLabel}</span>
         </span>
       </div>
 
-      <div className="flex items-center gap-4">
-        <nav className="flex items-center gap-3 text-[12px] text-dim">
+      <div className="flex shrink-0 items-center gap-2 lg:gap-4">
+        <nav className="hidden items-center gap-3 text-[12px] text-dim lg:flex">
           <a
             href="https://docs.blender.org/manual/en/latest/addons/import_export/scene_gltf2.html"
             target="_blank"
@@ -46,7 +46,7 @@ export function Header() {
             Bridge Settings
           </Link>
         </nav>
-        <button className="grid size-6 place-items-center rounded text-dim hover:bg-field hover:text-ink" aria-label="Settings">
+        <button className="hidden size-6 place-items-center rounded text-dim hover:bg-field hover:text-ink lg:grid" aria-label="Settings">
           <Settings size={15} />
         </button>
         {config?.features?.auth && (
@@ -62,7 +62,7 @@ export function Header() {
             <LogOut size={15} />
           </button>
         )}
-        <span className="grid size-8 place-items-center rounded-lg bg-accent text-on-accent shadow-[0_10px_15px_-3px_rgba(78,222,163,0.2)]">
+        <span className="hidden size-8 place-items-center rounded-lg bg-accent text-on-accent lg:grid shadow-[0_10px_15px_-3px_rgba(78,222,163,0.2)]">
           <User size={16} />
         </span>
       </div>

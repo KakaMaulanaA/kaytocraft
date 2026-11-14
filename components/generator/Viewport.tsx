@@ -144,18 +144,18 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
   };
 
   return (
-    <section className="relative flex h-full min-w-0 flex-1 overflow-hidden rounded-[12px] bg-[rgba(2,6,23,0.8)]">
+    <section className="relative flex h-full w-full min-w-0 flex-1 overflow-hidden rounded-[12px] bg-[rgba(2,6,23,0.8)]">
       <div ref={host} className="absolute inset-0" />
 
       {/* Top HUD */}
       <div className="pointer-events-none absolute left-2 right-2 top-2 flex items-start justify-between gap-2">
-        <div className="pointer-events-auto max-w-[70%] rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.85)] px-3 py-2 shadow-2xl backdrop-blur">
+        <div className="pointer-events-auto min-w-0 max-w-[calc(100%-3rem)] rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.85)] px-2.5 py-1.5 shadow-2xl backdrop-blur md:max-w-[70%] md:px-3 md:py-2">
           <div className="flex items-center gap-2">
-            <span className="grid size-6 place-items-center rounded-[4px] bg-accent/10 text-accent">
+            <span className="grid size-6 shrink-0 place-items-center rounded-[4px] bg-accent/10 text-accent">
               <Box size={14} />
             </span>
-            <span className="truncate text-[16px] font-semibold tracking-[-0.16px]">{fileName}</span>
-            <span className="label-mono rounded-[2px] bg-raised px-1 text-accent">LIVE VIEWPORT</span>
+            <span className="truncate text-[14px] font-semibold tracking-[-0.16px] md:text-[16px]">{fileName}</span>
+            <span className="label-mono hidden shrink-0 rounded-[2px] bg-raised px-1 text-accent sm:inline">LIVE VIEWPORT</span>
           </div>
           {stats && shown ? (
             <div className="label-mono mt-1 flex flex-wrap gap-x-2 text-dim">
@@ -176,7 +176,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
             <p className="label-mono mt-1 text-dim">Belum ada model dimuat</p>
           )}
         </div>
-        <div className="pointer-events-auto rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.85)] px-2.5 py-1.5">
+        <div className="pointer-events-auto hidden rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.85)] px-2.5 py-1.5 lg:block">
           <div className="flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-dim/50" />
             <span className="label-mono text-ink">Blender Bridge</span>
@@ -186,7 +186,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
       </div>
 
       {/* Right toolbar */}
-      <div className="absolute right-2 top-[84px] flex flex-col gap-1 rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.8)] p-1">
+      <div className="absolute right-2 top-[76px] flex flex-col gap-1 md:top-[84px] rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.8)] p-1">
         <Tool label="Wireframe" active={wire} onClick={() => (v?.setWireframe(!wire), setWire(!wire))}>
           <Grid3x3 size={15} />
         </Tool>
@@ -248,14 +248,14 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
       )}
 
       {/* Axis legend */}
-      <div className="label-mono pointer-events-none absolute bottom-3 left-3 flex flex-col gap-0.5 text-dim">
+      <div className="label-mono pointer-events-none absolute bottom-3 left-3 hidden flex-col gap-0.5 text-dim md:flex">
         <span><b className="text-red-400">X</b> Lateral</span>
         <span><b className="text-green-400">Y</b> Elevation</span>
         <span><b className="text-blue-400">Z</b> Depth</span>
       </div>
 
       {/* Export dock */}
-      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 flex-col items-center gap-1.5">
+      <div className="absolute bottom-3 left-1/2 flex w-max max-w-[calc(100%-1rem)] -translate-x-1/2 flex-col items-center gap-1.5">
         <a
           href={shown ? `/api/assets/${shown.id}/file?download=1` : undefined}
           aria-disabled={!shown}
@@ -263,7 +263,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
             shown ? "hover:brightness-110" : "pointer-events-none opacity-40"
           }`}
         >
-          <Download size={14} /> Export .{ext.toUpperCase()} (Blender Ready)
+          <Download size={14} /> Export .{ext.toUpperCase()}<span className="hidden sm:inline"> (Blender Ready)</span>
         </a>
         <div className="flex gap-1 rounded-[8px] border border-white/5 bg-[rgba(10,14,23,0.9)] p-1">
           <DockBtn
@@ -282,11 +282,13 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
           <DockBtn disabled={!shown} onClick={exportObj} title="Ekspor geometri .OBJ dari viewport">
             .OBJ
           </DockBtn>
-          <DockBtn disabled title="Fase 2 — konversi FBX via engine">
-            .FBX
-          </DockBtn>
+          <span className="hidden sm:contents">
+            <DockBtn disabled title="Fase 2 — konversi FBX via engine">
+              .FBX
+            </DockBtn>
+          </span>
           <DockBtn disabled={!shown} onClick={copyScript} title="Script import untuk Blender">
-            <Copy size={12} /> Python Script
+            <Copy size={12} /> <span className="hidden sm:inline">Python </span>Script
           </DockBtn>
         </div>
       </div>

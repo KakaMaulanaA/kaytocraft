@@ -26,7 +26,7 @@ export function Sidebar() {
   const used = config?.storage.used ?? 0;
 
   return (
-    <aside className="flex w-14 shrink-0 flex-col justify-between p-2 2xl:w-64">
+    <aside className="hidden w-14 shrink-0 flex-col justify-between p-2 lg:flex 2xl:w-64">
       <div>
         <p className="label-mono hidden px-1.5 pb-2 pt-2 uppercase tracking-[0.5px] text-dim 2xl:block">Studio Pipelines</p>
         <nav className="flex flex-col gap-0.5">
