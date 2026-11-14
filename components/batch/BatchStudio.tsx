@@ -139,7 +139,8 @@ export function BatchStudio() {
         try {
           const r = await makeOne(row.prompt, engine, { library: lib, gemini, claude, signal: ctl.signal });
           let saved = false;
-          if (saveToLib) {
+          // A result that came from the Library is already there; saving it again only makes duplicates.
+          if (saveToLib && r.via !== "library") {
             const entry = await saveEntry(row.prompt, r.asset.name, r.asset.id, lib.entries).catch(() => null);
             if (entry) {
               lib.entries.push(entry);
