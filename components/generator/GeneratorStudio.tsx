@@ -279,7 +279,7 @@ export function GeneratorStudio() {
       }
       const who = engine === "gemini" ? "Gemini" : "Claude";
       toast(`${who} sedang merancang model…`);
-      const body = await requestDesign({ engine, prompt: settings.prompt, image: img }, who);
+      const body = await requestDesign({ engine, prompt: settings.prompt, image: img }, who, toast);
       const { buildFromSpec } = await import("@/lib/procedural/fromSpec");
       const prompt = settings.prompt || body.spec.name;
       const saved = await saveGroup(buildFromSpec(body.spec), engine, prompt, body.spec);

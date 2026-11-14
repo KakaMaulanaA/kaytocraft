@@ -87,7 +87,7 @@ export function KnowledgeLibrary() {
         for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
         image = { mediaType: img.type, data: btoa(bin) };
       }
-      const body = await requestDesign({ engine: ai?.id ?? "gemini", prompt, image }, aiName);
+      const body = await requestDesign({ engine: ai?.id ?? "gemini", prompt, image }, aiName, (n) => setBusy(n));
       await previewSpec(body.spec, img ? "image" : "text");
       say(true, `Rancangan ${aiName} siap (${body.spec.parts.length} part). Cek di preview, lalu Simpan.`);
     } catch (e) {

@@ -13,6 +13,8 @@ export interface DesignInput {
   image?: { mediaType: string; data: string };
   /** Online without a background function: answer within ~25 s (less "thinking", hard deadline). */
   fast?: boolean;
+  /** Progress notes for long background jobs ("gemini-3.8-flash sibuk, coba lagi…"). */
+  onProgress?: (note: string) => void;
 }
 
 const FAST_DEADLINE_MS = 24_000;
@@ -167,13 +169,31 @@ function netReason(e: unknown) {
  * One Gemini call, streamed (SSE). Streaming keeps the connection busy while the model
  * thinks; a silent long request can be cut by the network ("fetch failed").
  */
-async function geminiStream(url: string, key: string, body: unknown, signal?: AbortSignal) {
+async function geminiStream(url: string, key: string, body: unknown, signal: AbortSignal, maxMs: number) {
+  // Own timer on top of the overall deadline: a call that stalls (no data for 60 s) or runs
+  // past maxMs is cut, so the next attempt / model gets its turn instead of waiting forever.
+  const ctl = new AbortController();
+  let last = Date.now();
+  const started = Date.now();
+  const watch = setInterval(() => {
+    if (Date.now() - last > 60_000 || Date.now() - started > maxMs) ctl.abort(new DOMException("stalled", "TimeoutError"));
+  }, 2000);
+  signal.addEventListener("abort", () => ctl.abort(signal.reason), { once: true });
+  try {
+    return await geminiStreamInner(url, key, body, ctl.signal, () => (last = Date.now()));
+  } finally {
+    clearInterval(watch);
+  }
+}
+
+async function geminiStreamInner(url: string, key: string, body: unknown, signal: AbortSignal, tick: () => void) {
   const res = await fetch(url, {
     method: "POST",
     headers: { "x-goog-api-key": key, "content-type": "application/json" },
     body: JSON.stringify(body),
     signal,
   });
+  tick();
   if (!res.ok || !res.body) {
     const data = await res.json().catch(() => null);
     return { ok: false as const, status: res.status, msg: String(data?.error?.message || res.statusText) };
@@ -186,6 +206,7 @@ async function geminiStream(url: string, key: string, body: unknown, signal?: Ab
   for (;;) {
     const { value, done } = await reader.read();
     if (done) break;
+    tick();
     buf += value;
     let nl: number;
     while ((nl = buf.indexOf("\n")) >= 0) {
@@ -236,6 +257,9 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
       const left = deadline - Date.now();
       if (left < 3000) break;
       let r: Awaited<ReturnType<typeof geminiStream>>;
+      const t0 = Date.now();
+      console.log(`[gemini] ${model} attempt ${attempt + 1}${thinking ? "" : " (no thinking cfg)"}`);
+      input.onProgress?.(`Gemini (${model}) sedang merancang…`);
       try {
         r = await geminiStream(
           `${base}/v1beta/models/${model}:streamGenerateContent?alt=sse`,
@@ -251,10 +275,20 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
             },
           },
           AbortSignal.timeout(left),
+          input.fast ? left : 150_000,
         );
+        console.log(`[gemini] ${model} -> ${r.ok ? "ok" : r.status} in ${Math.round((Date.now() - t0) / 1000)}s`);
       } catch (e) {
-        if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError"))
+        const timedOut = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
+        console.error(`[gemini] ${model} ${timedOut ? "stalled/timeout" : "network error"} after ${Math.round((Date.now() - t0) / 1000)}s`, timedOut ? "" : e);
+        if (timedOut && deadline - Date.now() < 5000)
           throw new DesignError("Gemini terlalu lama menjawab. Coba lagi atau pakai prompt yang lebih singkat.", 504);
+        if (timedOut) {
+          // this model hangs: move on to the next one
+          errors.push(`${model}: tidak menjawab (macet ${Math.round((Date.now() - t0) / 1000)} detik)`);
+          input.onProgress?.(`${model} tidak menjawab, mencoba model lain…`);
+          break;
+        }
         console.error("[gemini] network", model, e);
         if (networkRetry) {
           networkRetry = false; // one retry for a dropped connection
@@ -277,6 +311,7 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
         if (r.status === 403) throw new DesignError(`Gemini: akses ditolak (${r.msg}).`, 403);
         if ((r.status === 503 || r.status === 500) && busyRetries > 0 && deadline - Date.now() > 8000) {
           busyRetries--;
+          input.onProgress?.(`Server Gemini (${model}) sedang sibuk, mencoba lagi…`);
           await new Promise((res) => setTimeout(res, input.fast ? 1500 : 4000));
           continue;
         }

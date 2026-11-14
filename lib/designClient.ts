@@ -10,6 +10,7 @@ export interface DesignResponse {
 export async function requestDesign(
   body: { engine: string; prompt: string; image?: { mediaType: string; data: string } },
   who: string,
+  onNote?: (note: string) => void,
 ): Promise<DesignResponse> {
   type Step = { job: string } | { pending: true } | { result: DesignResponse };
   const read = async (res: Response): Promise<Step> => {
@@ -19,7 +20,10 @@ export async function requestDesign(
       data = JSON.parse(text);
     } catch {}
     if (res.status === 202 && data?.jobId) return { job: String(data.jobId) };
-    if (res.status === 202) return { pending: true };
+    if (res.status === 202) {
+      if (typeof data?.note === "string") onNote?.(data.note);
+      return { pending: true };
+    }
     if (!res.ok) {
       const raw = (data?.error ?? data?.errorMessage ?? text.replace(/<[^>]+>/g, " ").trim().slice(0, 160)) as string;
       throw new Error(`${who} gagal (HTTP ${res.status})${raw ? `: ${raw}` : ""}`);

@@ -65,5 +65,8 @@ export async function GET(req: Request) {
     await deleteJob(id);
     return NextResponse.json({ error: "Proses AI terlalu lama dan dihentikan. Coba lagi." }, { status: 504 });
   }
-  return NextResponse.json({ status: job.status === "queued" ? "pending" : "running" }, { status: 202 });
+  return NextResponse.json(
+    { status: job.status === "queued" ? "pending" : "running", note: "note" in job ? job.note : undefined },
+    { status: 202 },
+  );
 }

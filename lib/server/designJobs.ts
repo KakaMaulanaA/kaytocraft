@@ -9,7 +9,7 @@ import { DesignError, designWith, type DesignInput, type DesignResult } from "./
  *   storage: jobs/<id>.json  { status: queued|running|done|error, engine, input?, result?, error?, at }
  */
 export type DesignJob =
-  | { status: "queued" | "running"; engine: string; input?: DesignInput; at: number }
+  | { status: "queued" | "running"; engine: string; input?: DesignInput; at: number; note?: string }
   | { status: "done"; engine: string; result: DesignResult; at: number }
   | { status: "error"; engine: string; error: string; code: number; at: number };
 
@@ -39,9 +39,17 @@ export async function createJob(engine: string, input: DesignInput) {
 export async function runJob(id: string) {
   const job = await readJob(id);
   if (!job || job.status !== "queued" || !job.input) return;
-  await writeJob(id, { status: "running", engine: job.engine, at: Date.now() });
+  const startedAt = Date.now();
+  await writeJob(id, { status: "running", engine: job.engine, at: startedAt });
+  // Progress notes for the browser (throttled; the last one wins).
+  let lastNote = 0;
+  const onProgress = (note: string) => {
+    if (Date.now() - lastNote < 1500) return;
+    lastNote = Date.now();
+    void writeJob(id, { status: "running", engine: job.engine, at: startedAt, note }).catch(() => {});
+  };
   try {
-    const result = await designWith(job.engine, job.input);
+    const result = await designWith(job.engine, { ...job.input, onProgress });
     await writeJob(id, { status: "done", engine: job.engine, result, at: Date.now() });
   } catch (e) {
     await writeJob(id, {
