@@ -97,9 +97,47 @@ export async function designWithClaude(input: DesignInput): Promise<DesignResult
 // ------------------------------------------------------------------ Gemini (Google AI Studio, free tier)
 
 /** Tried in order; the first that exists and still has quota wins. */
-function geminiModels() {
+const FALLBACK_MODELS = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-flash-latest", "gemini-3.5-flash", "gemini-3.5-flash-lite", "gemini-flash-lite-latest"];
+let modelCache: { at: number; list: string[] } | null = null;
+
+/**
+ * Pick text "flash" models: the 4 newest full ones, then gemini-flash-latest, then 2 lite ones.
+ * Gemini 2.x is skipped (retired for new API keys even though it is still listed).
+ */
+export function rankGeminiModels(names: string[]) {
+  const ver = (n: string) => Number(n.match(/^gemini-(\d+(?:\.\d+)?)/)?.[1] ?? 0);
+  const byNew = (a: string, b: string) => ver(b) - ver(a) || Number(a.includes("preview")) - Number(b.includes("preview"));
+  const full = names.filter((n) => /^gemini-\d+(\.\d+)?-flash(-preview)?$/.test(n) && ver(n) >= 3).sort(byNew);
+  const lite = names.filter((n) => /^gemini-\d+(\.\d+)?-flash-lite(-preview)?$/.test(n) && ver(n) >= 3).sort(byNew);
+  return [
+    ...full.slice(0, 4),
+    ...(names.includes("gemini-flash-latest") ? ["gemini-flash-latest"] : []),
+    ...lite.slice(0, 1),
+    ...(names.includes("gemini-flash-lite-latest") ? ["gemini-flash-lite-latest"] : []),
+  ];
+}
+
+/**
+ * Models to try, in order. Read from the API (cached 1 h) so retired models like
+ * gemini-2.5-flash drop out and new ones are picked up without a code change.
+ */
+async function geminiModels(base: string, key: string) {
   const preferred = process.env.GEMINI_MODEL?.trim();
-  const list = ["gemini-3.8-flash", "gemini-3-flash-preview", "gemini-2.5-flash", "gemini-3.1-flash-lite", "gemini-2.5-flash-lite"];
+  if (!modelCache || Date.now() - modelCache.at > 60 * 60_000) {
+    try {
+      const res = await fetch(`${base}/v1beta/models?pageSize=200`, {
+        headers: { "x-goog-api-key": key },
+        signal: AbortSignal.timeout(5000),
+      });
+      const data = await res.json();
+      const names: string[] = (data?.models ?? [])
+        .filter((m: { supportedGenerationMethods?: string[] }) => m.supportedGenerationMethods?.includes("generateContent"))
+        .map((m: { name: string }) => m.name.replace(/^models\//, ""));
+      const ranked = rankGeminiModels(names);
+      if (ranked.length) modelCache = { at: Date.now(), list: ranked };
+    } catch {}
+  }
+  const list = modelCache?.list ?? FALLBACK_MODELS;
   return preferred ? [preferred, ...list.filter((m) => m !== preferred)] : list;
 }
 
@@ -186,14 +224,15 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
 
   const errors: string[] = [];
   const deadline = input.fast ? Date.now() + FAST_DEADLINE_MS : Date.now() + 12 * 60_000;
-  for (const model of geminiModels()) {
+  for (const model of await geminiModels(base, key)) {
     // Keep thinking short: a parts recipe doesn't need long reasoning, and it keeps answers fast.
     let thinking: Record<string, unknown> | null = /^gemini-2\.5/.test(model)
       ? { thinkingBudget: input.fast ? 0 : 2048, includeThoughts: !input.fast }
       : { thinkingLevel: "low", includeThoughts: !input.fast };
     let jsonMode = true;
     let networkRetry = true;
-    for (let attempt = 0; attempt < 4; attempt++) {
+    let busyRetries = input.fast ? 1 : 2; // 503 "high demand" is usually over in seconds
+    for (let attempt = 0; attempt < 7; attempt++) {
       const left = deadline - Date.now();
       if (left < 3000) break;
       let r: Awaited<ReturnType<typeof geminiStream>>;
@@ -236,7 +275,12 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
         if (r.status === 400 && /API key not valid|API_KEY_INVALID/i.test(r.msg))
           throw new DesignError("Gemini: API key tidak valid — cek GEMINI_API_KEY (buat di aistudio.google.com).", 401);
         if (r.status === 403) throw new DesignError(`Gemini: akses ditolak (${r.msg}).`, 403);
-        // 404 = model not available, 429 = quota for this model used up -> try the next model
+        if ((r.status === 503 || r.status === 500) && busyRetries > 0 && deadline - Date.now() > 8000) {
+          busyRetries--;
+          await new Promise((res) => setTimeout(res, input.fast ? 1500 : 4000));
+          continue;
+        }
+        // 404 = model not available, 429 = quota used up, 503 = still busy -> try the next model
         errors.push(`${model}: ${r.status} ${r.msg.slice(0, 120)}`);
         break;
       }
@@ -254,6 +298,11 @@ export async function designWithGemini(input: DesignInput): Promise<DesignResult
   }
   if (Date.now() > deadline - 3000)
     throw new DesignError("Gemini terlalu lama menjawab. Coba lagi atau pakai prompt yang lebih singkat.", 504);
+  if (errors.length && errors.every((e) => /: 50[03] /.test(e) || /: 404 /.test(e)) && errors.some((e) => /: 503 /.test(e)))
+    throw new DesignError(
+      "Server Gemini (Google) sedang sangat sibuk untuk semua model. Ini dari pihak Google dan biasanya pulih dalam beberapa menit — coba lagi sebentar lagi, atau pakai Mode Gratis / Library.",
+      503,
+    );
   const quota = errors.length > 0 && errors.every((e) => /: 429 /.test(e) || /: 404 /.test(e)) && errors.some((e) => /: 429 /.test(e));
   throw new DesignError(
     quota
