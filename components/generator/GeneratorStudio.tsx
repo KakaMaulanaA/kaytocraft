@@ -8,7 +8,8 @@ import { ConceptBoard } from "./ConceptBoard";
 import { estimate3D, sum, usd } from "@/lib/estimate";
 import { smartPrompt } from "@/lib/smartPrompt";
 import { SUPPORTED_LABELS, detectProcedural } from "@/lib/procedural/detect";
-import { applyVariation, matchLibrary, type LibraryEntry } from "@/lib/library";
+import { applyVariation, type LibraryEntry } from "@/lib/library";
+import { findLibrary } from "@/lib/libraryMatch";
 import { groupToGlb, refreshLibrary, useLibrary } from "@/lib/useLibrary";
 import { refreshConfig, useConfig } from "@/lib/useConfig";
 import type { Asset, AssetStats, Concept, GenerateSettings, GenMode } from "@/lib/types";
@@ -107,7 +108,8 @@ export function GeneratorStudio() {
     setSettings((s) => {
       const cur = config.engines.find((e) => e.id === s.engine);
       if (engineTouched.current && cur?.available) return s;
-      return { ...s, engine: config.defaultEngine };
+      // Default to the free automatic route; paid engines only when picked explicitly.
+      return { ...s, engine: "demo" };
     });
   }, [config]);
 
@@ -212,12 +214,15 @@ export function GeneratorStudio() {
   /** Free mode: build the model in the browser, export GLB, store it like any other asset. */
   const generateFree = async () => {
     setError(null);
+    const geminiOk = !!config?.engines.find((e) => e.id === "gemini")?.available;
     if (settings.mode === "image") {
+      if (geminiOk) return generateDesign("gemini");
       setError("Mode Gratis hanya untuk teks. Untuk Image to 3D pilih engine Tripo, atau pakai Import GLB di Asset Vault.");
       return;
     }
     const core = smartPrompt(settings.prompt, library.dictionary).core;
     const params = detectProcedural(core);
+    if (!params && geminiOk) return generateDesign("gemini");
     if (!params) {
       const alt = config?.engines.find((e) => e.id === "gemini")?.available
         ? "Gemini (gratis)"
@@ -363,7 +368,7 @@ export function GeneratorStudio() {
 
   const libraryHit =
     useLib && settings.mode === "text" && settings.prompt.trim()
-      ? matchLibrary(library.entries, settings.prompt, smartPrompt(settings.prompt, library.dictionary).core)
+      ? findLibrary(library.entries, settings.prompt, library.dictionary)
       : null;
 
   const generate = async (conceptId?: string) => {

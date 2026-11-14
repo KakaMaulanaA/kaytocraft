@@ -1,6 +1,7 @@
 import type { Asset, GenerateSettings } from "./types";
 import type { LibraryData, LibraryEntry } from "./library";
-import { applyVariation, matchLibrary } from "./library";
+import { applyVariation } from "./library";
+import { findLibrary } from "./libraryMatch";
 import { smartPrompt } from "./smartPrompt";
 import { detectProcedural } from "./procedural/detect";
 import { groupToGlb } from "./useLibrary";
@@ -111,7 +112,7 @@ export async function makeOne(
   const core = smartPrompt(prompt, ctx.library.dictionary).core;
   if (engine === "tripo") return { asset: await viaTripo(prompt, ctx.signal), via: "tripo" };
 
-  const hit = matchLibrary(ctx.library.entries, prompt, core);
+  const hit = findLibrary(ctx.library.entries, prompt, ctx.library.dictionary);
   if (hit) return { asset: await fromLibrary(hit, prompt), via: "library" };
 
   if (engine === "auto") {

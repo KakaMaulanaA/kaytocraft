@@ -41,7 +41,7 @@ export const ENGINE_LABELS: Record<EngineId, string> = {
   meshy: "Meshy AI",
   claude: "Claude AI (rakit dari bentuk dasar)",
   gemini: "Gemini AI — gratis (rakit dari bentuk dasar)",
-  demo: "Gratis — Procedural (objek sederhana)",
+  demo: "Gratis — Otomatis (Library → Procedural → Gemini)",
 };
 
 export const PROMPT_MAX = 1000;

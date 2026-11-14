@@ -47,7 +47,7 @@ export function engineList(): EngineInfo[] {
       available: true,
       supportsImage: true,
       supportsConcept: false,
-      note: "Gratis tanpa API key. Generator procedural untuk objek sederhana.",
+      note: "Gratis: pakai Library, lalu Mode Gratis procedural, lalu Gemini (kalau key diisi). Tidak memakai kredit berbayar.",
     },
   ];
 }

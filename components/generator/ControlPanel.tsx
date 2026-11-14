@@ -78,6 +78,8 @@ export function ControlPanel(p: Props) {
   const isFree = engine?.provider === "demo";
   const freeKind = isFree && smart?.core ? detectProcedural(smart.core)?.label : undefined;
   const fromLib = !!p.libraryHit;
+  const geminiOk = !!p.engines.find((e) => e.id === "gemini")?.available;
+  const viaGemini = isFree && !fromLib && (s.mode === "image" || (!!smart?.core && !freeKind)) && geminiOk;
 
   return (
     <section className="flex w-full shrink-0 flex-col overflow-hidden rounded-[8px] bg-panel shadow-xl lg:h-full lg:w-[320px] xl:w-[360px]">
@@ -147,6 +149,8 @@ export function ControlPanel(p: Props) {
           {!fromLib && isFree && s.mode === "text" && smart?.core && (
             freeKind ? (
               <p className="label-mono text-accent">✓ Mode Gratis bisa membuat: {freeKind}</p>
+            ) : geminiOk ? (
+              <p className="label-mono text-accent">✓ Akan dirancang Gemini (gratis, ~10–40s)</p>
             ) : (
               <p className="label-mono text-amber-300">
                 ✗ Belum didukung Mode Gratis. Bisa: {SUPPORTED_LABELS.join(", ")}. Objek lain → pilih engine Gemini (gratis), Claude, atau Tripo di Pengaturan lanjutan.
@@ -357,7 +361,7 @@ export function ControlPanel(p: Props) {
         </button>
         <div className="flex items-center justify-between px-1">
           <span className="label-mono flex items-center gap-0.5 text-dim">
-            <Clock size={11} /> {fromLib ? "~1s" : EST[engine?.provider ?? "demo"]}
+            <Clock size={11} /> {fromLib ? "~1s" : viaGemini ? EST.gemini : EST[engine?.provider ?? "demo"]}
           </span>
           {fromLib ? (
             <span className="label-mono text-accent">Gratis · Library</span>
