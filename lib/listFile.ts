@@ -10,7 +10,8 @@ import { strFromU8, unzipSync } from "fflate";
 export async function readListFile(file: File): Promise<string[]> {
   const name = file.name.toLowerCase();
   const buf = new Uint8Array(await file.arrayBuffer());
-  if (name.endsWith(".docx")) return clean(docxLines(buf));
+  // Documents often carry a title or a note line; drop sentence-like lines there (typed lists keep everything).
+  if (name.endsWith(".docx")) return clean(docxLines(buf)).filter((s) => !isSentence(s));
   if (name.endsWith(".xlsx")) return clean(xlsxFirstColumn(buf));
   if (name.endsWith(".doc") || name.endsWith(".xls"))
     throw new Error("Format lama (.doc/.xls) belum didukung. Simpan ulang sebagai .docx / .xlsx (File › Save As).");
@@ -25,6 +26,12 @@ export function parseListText(text: string): string[] {
 }
 
 const HEADER = /^(no\.?|nomor|nama( barang)?|barang|item|items?|objek|object|produk|daftar.*|list.*)$/i;
+
+/** Notes / instructions in a document ("Daftar untuk ruang tamu, tolong dibuat."), not item names. */
+function isSentence(s: string) {
+  const words = s.split(" ").length;
+  return words > 8 || (words > 4 && /[.!?:]$/.test(s)) || /[.!?]\s+\p{Lu}/u.test(s);
+}
 
 function clean(items: string[]): string[] {
   return items
