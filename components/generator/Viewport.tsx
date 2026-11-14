@@ -49,14 +49,18 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
 
 
   // Boot three.js (dynamic import keeps it out of the server bundle).
+  // A failed start is retried twice on its own (the browser may still be freeing an old GPU context).
+  const bootTries = useRef(0);
   useEffect(() => {
     let disposed = false;
+    let retry: number | undefined;
     import("@/lib/three/viewer")
       .then(({ ModelViewer }) => {
         if (disposed || !host.current) return;
         const v = new ModelViewer(host.current);
         v.onContextLost = () => setGlError("Tampilan 3D terputus (GPU browser direset).");
         viewer.current = v;
+        bootTries.current = 0;
         setGlError(null);
         setReady(true);
         setViewerVer((n) => n + 1);
@@ -64,14 +68,25 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
       .catch((e) => {
         if (disposed) return;
         const msg = e instanceof Error ? e.message : String(e);
+        console.warn("[viewport] 3D start failed:", msg);
+        if (/dynamically imported module|Loading chunk|ChunkLoadError/i.test(msg)) {
+          setGlError("Versi web baru tersedia — muat ulang halaman.");
+          return;
+        }
+        if (bootTries.current < 2) {
+          bootTries.current++;
+          retry = window.setTimeout(() => setGen((g) => g + 1), 1500 * bootTries.current);
+          return;
+        }
         setGlError(
-          /dynamically imported module|Loading chunk|ChunkLoadError/i.test(msg)
-            ? "Versi web baru tersedia — muat ulang halaman."
-            : "Tampilan 3D tidak bisa dimulai (WebGL tidak tersedia).",
+          webglBlocked()
+            ? "Chrome sedang memblokir 3D (WebGL) di tab ini — biasanya setelah GPU browser macet. Tutup SEMUA jendela Chrome lalu buka lagi. Kalau masih, nyalakan “Gunakan akselerasi grafis” di Setelan Chrome › Sistem."
+            : `Tampilan 3D gagal dimulai: ${msg.slice(0, 140)}`,
         );
       });
     return () => {
       disposed = true;
+      window.clearTimeout(retry);
       setReady(false);
       viewer.current?.dispose();
       viewer.current = null;
@@ -88,6 +103,7 @@ export function Viewport({ asset, onLoaded, toast }: Props) {
   }, [waitingId, gen]);
 
   const restart3D = () => {
+    bootTries.current = 0;
     setGlError(null);
     setShownAsset(null);
     setStats(null);
@@ -419,4 +435,17 @@ function ProgressRing({ asset }: { asset: Asset }) {
       <p className="label-mono text-dim">{asset.stageLabel ?? "Memproses…"}</p>
     </div>
   );
+}
+
+/** True when the browser refuses to give this page any WebGL context at all. */
+function webglBlocked() {
+  try {
+    const c = document.createElement("canvas");
+    const gl = (c.getContext("webgl2") ?? c.getContext("webgl")) as WebGLRenderingContext | null;
+    if (!gl) return true;
+    gl.getExtension("WEBGL_lose_context")?.loseContext();
+    return false;
+  } catch {
+    return true;
+  }
 }
