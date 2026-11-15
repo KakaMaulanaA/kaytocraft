@@ -140,11 +140,30 @@ def clean_part(o):
         ratio = abs(bm.calc_volume()) / box_vol
         if ratio > 0.93:
             # corner rounding: nearest vertex to a bounding-box corner sits r*(sqrt(3)-1) away
-            corner = Vector((hi.x, hi.y, hi.z))
-            d = min((v.co - corner).length for v in bm.verts)
+            # All 8 corners of a (rounded) box look the same; a notch or a cut corner breaks that.
+            ds = []
+            for cx in (lo.x, hi.x):
+                for cy in (lo.y, hi.y):
+                    for cz in (lo.z, hi.z):
+                        c = Vector((cx, cy, cz))
+                        ds.append(min((v.co - c).length for v in bm.verts))
+            d = max(ds)
+            same_corners = d - min(ds) <= max(d * 0.15, size.length * 1e-4)
             r = d / (math.sqrt(3) - 1) if d > 1e-6 else 0.0
-            bm.free()
-            return clean_part_as_box(o, me, size, center, r if r < min(size) / 2 else 0.0)
+            # Only a real (rounded) box: every vertex lies on the box surface (within the rounding),
+            # and every face is flat on a box side or part of a rounded edge. Notches, tapers,
+            # bulges or slanted faces keep their own shape.
+            tol = max(r * 1.05, size.length * 1e-4)
+            on_surface = all(
+                min(v.co.x - lo.x, hi.x - v.co.x, v.co.y - lo.y, hi.y - v.co.y, v.co.z - lo.z, hi.z - v.co.z) <= tol
+                for v in bm.verts
+            )
+            axis_faces = sum(f.calc_area() for f in bm.faces if max(abs(f.normal.x), abs(f.normal.y), abs(f.normal.z)) > 0.999)
+            total = sum(f.calc_area() for f in bm.faces) or 1.0
+            flat_ok = axis_faces / total > 0.5  # flat sides dominate; the rest is the rounding
+            if same_corners and on_surface and flat_ok and r < min(size) * 0.3:
+                bm.free()
+                return clean_part_as_box(o, me, size, center, r)
     bmesh.ops.join_triangles(
         bm, faces=bm.faces, cmp_seam=False, cmp_sharp=False, cmp_uvs=False, cmp_vcols=False, cmp_materials=True,
         angle_face_threshold=math.radians(2), angle_shape_threshold=math.radians(180),

@@ -96,8 +96,8 @@ export function deleteAsset(id: string) {
   });
 }
 
-/** Cached .blend. The version part changes when the .blend layout changes (s3 = studio template, real-size marker, clean editable meshes), so old files are rebuilt. */
-export const BLEND_VER = "s3";
+/** Cached .blend. The version part changes when the .blend layout changes (s4 = studio template, real-size marker, clean meshes; only true boxes rebuilt), so old files are rebuilt. */
+export const BLEND_VER = "s4";
 export const blendKey = (id: string) => `blend/${id}.${BLEND_VER}.blend`;
 /** The user's own fixed .blend (uploaded back) — wins over the generated one. */
 export const fixedBlendKey = (id: string) => `blend/${id}.fixed.blend`;
