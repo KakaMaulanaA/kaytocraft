@@ -67,6 +67,7 @@ export function BatchStudio() {
   const [running, setRunning] = useState(false);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [zipping, setZipping] = useState(false);
+  const [zipNote, setZipNote] = useState<string | null>(null);
   const [saveToLib, setSaveToLib] = useState(true);
   const [preview, setPreview] = useState<Row | null>(null);
   const abort = useRef<AbortController | null>(null);
@@ -202,30 +203,57 @@ export function BatchStudio() {
     void runQueue([r]);
   }
 
-  async function downloadAll() {
+  /**
+   * ZIP of every result. "blend" (default) asks for a .blend per model — online that runs on the
+   * Blender worker, a few at a time — and falls back to the .glb/.fbx when a .blend can't be made.
+   */
+  async function downloadAll(format: "blend" | "model" = "blend") {
     const ready = rows.filter((r) => r.status === "done" && r.assetId);
     if (!ready.length) return;
     setZipping(true);
+    setZipNote(format === "blend" ? `Menyiapkan .blend 0/${ready.length}…` : null);
     try {
       const { zipSync } = await import("fflate");
       const files: Record<string, Uint8Array> = {};
-      for (const [i, r] of ready.entries()) {
-        const res = await fetch(`/api/assets/${r.assetId}/file`);
-        if (!res.ok) continue;
-        const ext = res.headers.get("content-type")?.includes("gltf") ? "glb" : "fbx";
+      let made = 0;
+      let fellBack = 0;
+      const one = async (r: Row, i: number) => {
         const safe = (r.name || r.prompt).replace(/[^\p{L}\p{N}\- ]+/gu, "").trim().replace(/\s+/g, "_") || `model_${i + 1}`;
-        files[`${String(i + 1).padStart(2, "0")}_${safe}.${ext}`] = new Uint8Array(await res.arrayBuffer());
-      }
+        const base = `${String(i + 1).padStart(2, "0")}_${safe}`;
+        if (format === "blend") {
+          const blend = await fetchBlend(r.assetId!);
+          made++;
+          setZipNote(`Menyiapkan .blend ${made}/${ready.length}…`);
+          if (blend) {
+            files[`${base}.blend`] = blend;
+            return;
+          }
+          fellBack++;
+        }
+        const res = await fetch(`/api/assets/${r.assetId}/file`);
+        if (!res.ok) return;
+        const ext = res.headers.get("content-type")?.includes("gltf") ? "glb" : "fbx";
+        files[`${base}.${ext}`] = new Uint8Array(await res.arrayBuffer());
+      };
+      // A few at a time: each .blend online is its own Blender job.
+      const queue = ready.map((r, i) => [r, i] as const);
+      await Promise.all(
+        Array.from({ length: format === "blend" ? 4 : 1 }, async () => {
+          for (let job = queue.shift(); job; job = queue.shift()) await one(job[0], job[1]);
+        }),
+      );
+      if (fellBack) setMsg({ ok: false, text: `${fellBack} model belum bisa dibuat .blend — dimasukkan sebagai .glb.` });
       const zip = zipSync(files, { level: 0 });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([zip as BlobPart], { type: "application/zip" }));
-      a.download = `kaytocraft_batch_${ready.length}_model.zip`;
+      a.download = `kaytocraft_batch_${ready.length}_${format === "blend" ? "blend" : "model"}.zip`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) {
       setMsg({ ok: false, text: `Gagal membuat ZIP: ${e instanceof Error ? e.message : e}` });
     } finally {
       setZipping(false);
+      setZipNote(null);
     }
   }
 
@@ -395,11 +423,21 @@ export function BatchStudio() {
             )}
             <button
               type="button"
-              onClick={downloadAll}
+              onClick={() => downloadAll("blend")}
               disabled={!done || zipping || running}
-              className="btn-secondary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
+              title="Semua model sebagai .blend (yang gagal dibuat .blend masuk sebagai .glb). Pertama kali ±1–3 menit."
+              className="btn-primary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
             >
-              {zipping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} Unduh semua (.zip)
+              {zipping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} {zipNote ?? "Unduh semua .blend (.zip)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadAll("model")}
+              disabled={!done || zipping || running}
+              title="Cepat: file .glb asli"
+              className="btn-secondary text-[12px] disabled:opacity-40"
+            >
+              .glb
             </button>
             {!running && rows.length > 0 && (
               <button type="button" onClick={() => setRows([])} title="Bersihkan daftar (model tetap di Asset Vault)" className="btn-secondary px-2">
@@ -499,4 +537,19 @@ async function saveEntry(prompt: string, name: string, assetId: string, entries:
   fd.append("fromAsset", assetId);
   const res = await fetch("/api/library", { method: "POST", body: fd });
   return res.ok ? ((await res.json()) as LibraryEntry) : null;
+}
+
+/** The model as .blend, or null when it can't be made (online the first request starts a worker job). */
+async function fetchBlend(id: string): Promise<Uint8Array | null> {
+  const started = Date.now();
+  while (Date.now() - started < 10 * 60_000) {
+    const res = await fetch(`/api/assets/${id}/blend`, { cache: "no-store" }).catch(() => null);
+    if (res?.status === 202) {
+      await new Promise((r) => setTimeout(r, 6000));
+      continue;
+    }
+    if (!res?.ok) return null;
+    return new Uint8Array(await res.arrayBuffer());
+  }
+  return null;
 }
