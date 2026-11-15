@@ -144,6 +144,7 @@ if use_tpl:
         lo, hi = bb
         k = min(limit_w / max(hi.x - lo.x, 1e-6), limit_h / max(hi.z - lo.z, 1e-6))
         root.scale = (k, k, k)
+        root["kc_display_scale"] = k  # enlarged to fit the camera; real size = scale / this
         lo, hi = box()
         root.location += center - (lo + hi) / 2
 

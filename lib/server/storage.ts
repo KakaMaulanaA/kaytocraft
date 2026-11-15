@@ -96,8 +96,8 @@ export function deleteAsset(id: string) {
   });
 }
 
-/** Cached .blend. The version part changes when the .blend layout changes (s1 = studio template), so old files are rebuilt. */
-export const BLEND_VER = "s1";
+/** Cached .blend. The version part changes when the .blend layout changes (s2 = studio template + real-size marker), so old files are rebuilt. */
+export const BLEND_VER = "s2";
 export const blendKey = (id: string) => `blend/${id}.${BLEND_VER}.blend`;
 
 export function modelKey(asset: Pick<Asset, "id" | "format">) {
