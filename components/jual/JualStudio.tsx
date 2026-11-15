@@ -7,6 +7,7 @@ import { DEFAULT_SELL, SWATCHES, makeCover, shapeItem, type SellOptions } from "
 import { useConfig } from "@/lib/useConfig";
 
 const OPT_KEY = "kc:jual:opts:v1";
+const PICK_KEY = "kc:jual:picked:v1";
 
 interface Item {
   id: string;
@@ -29,6 +30,7 @@ export function JualStudio() {
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  const pickLoaded = useRef(false);
   const [status, setStatus] = useState<Record<string, Status>>({});
   const [uploads, setUploads] = useState<{ name: string; msg: string; err?: boolean }[]>([]);
   const [o, setO] = useState<SellOptions>(DEFAULT_SELL);
@@ -85,6 +87,13 @@ export function JualStudio() {
     try {
       const list: Item[] = await (await fetch("/api/sell", { cache: "no-store" })).json();
       setItems(list);
+      // Keep the ticks from last time (only for files that still exist).
+      try {
+        const saved: string[] = JSON.parse(localStorage.getItem(PICK_KEY) ?? "[]");
+        const ids = new Set(list.map((x) => x.id));
+        setPicked(new Set(saved.filter((id) => ids.has(id))));
+      } catch {}
+      pickLoaded.current = true;
       for (const it of list) {
         if (it.state === "ready") setStat(it.id, { msg: "Render siap ✓", kind: "ok" });
         else void watch(it.id, it.state === "error" ? Date.now() : it.createdAt); // new / rendering / error (retry) -> render now
@@ -107,6 +116,12 @@ export function JualStudio() {
       localStorage.setItem(OPT_KEY, JSON.stringify(o));
     } catch {}
   }, [o]);
+  useEffect(() => {
+    if (!pickLoaded.current) return; // don't wipe the saved ticks before they are read
+    try {
+      localStorage.setItem(PICK_KEY, JSON.stringify([...picked]));
+    } catch {}
+  }, [picked]);
   const working = busy || uploads.some((u) => !u.err && !u.msg.startsWith("✓"));
   useEffect(() => {
     if (!working) return;
