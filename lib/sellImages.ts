@@ -51,7 +51,7 @@ function canvas(w: number, h: number) {
   return c;
 }
 
-async function encode(c: HTMLCanvasElement, type: "image/jpeg" | "image/webp", q = 0.92): Promise<Uint8Array> {
+async function encode(c: HTMLCanvasElement, type: "image/jpeg" | "image/webp", q = 0.95): Promise<Uint8Array> {
   const blob = await new Promise<Blob | null>((r) => c.toBlob(r, type, q));
   if (!blob) throw new Error(`Browser tidak bisa membuat ${type === "image/webp" ? "WebP" : "JPG"}.`);
   return new Uint8Array(await blob.arrayBuffer());
@@ -72,7 +72,7 @@ async function onBackground(img: ImageBitmap, color: string | null, type: "image
 async function makeCollage(imgs: ImageBitmap[], color: string) {
   const cols = imgs.length <= 3 ? imgs.length : 2;
   const rows = Math.ceil(imgs.length / cols);
-  const cell = 1000;
+  const cell = 1024;
   const c = canvas(cols * cell, rows * cell);
   const g = c.getContext("2d")!;
   g.fillStyle = color;

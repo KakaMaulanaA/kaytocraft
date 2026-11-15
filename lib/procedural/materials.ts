@@ -13,10 +13,15 @@ export function rng(seed: number) {
   };
 }
 
+/** Detail multiplier: patterns are drawn in the same units but at 2x pixels (sharper in renders). */
+const HD = 2;
+
 function canvas(size = 512) {
   const c = document.createElement("canvas");
-  c.width = c.height = size;
-  return [c, c.getContext("2d")!] as const;
+  c.width = c.height = size * HD;
+  const g = c.getContext("2d")!;
+  g.scale(HD, HD);
+  return [c, g] as const;
 }
 
 function shade(hex: string, k: number) {
@@ -32,7 +37,7 @@ function texture(c: HTMLCanvasElement, repeat = 1) {
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(repeat, repeat);
-  t.anisotropy = 4;
+  t.anisotropy = 8;
   return t;
 }
 

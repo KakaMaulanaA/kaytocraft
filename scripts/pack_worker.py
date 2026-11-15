@@ -23,8 +23,9 @@ NAME = re.sub(r"[^\w\- ]+", "", os.environ.get("ASSET_NAME", "Model")).strip().r
 SECRET = os.environ.get("WORKER_SECRET", "")
 # "assets" = an asset of the Vault, "sell" = a fixed .blend uploaded on the Siap Jual page
 SCOPE = "sell" if os.environ.get("ASSET_SCOPE") == "sell" else "assets"
-SAMPLES = os.environ.get("PACK_SAMPLES", "48")
-RES = os.environ.get("PACK_RES", "1500")
+# HD by default: 2048 px, 128 samples (adaptive + high-quality denoise) — sharp enough for any marketplace
+SAMPLES = os.environ.get("PACK_SAMPLES", "128")
+RES = os.environ.get("PACK_RES", "2048")
 CHUNK = 4 * 1024 * 1024
 
 if not re.fullmatch(r"https://[\w.-]+(:\d+)?" if not os.environ.get("KC_ALLOW_HTTP") else r"https?://[\w.-]+(:\d+)?", SITE) or not re.fullmatch(r"[a-f0-9]{12}", ASSET_ID):

@@ -106,8 +106,8 @@ export const blendSupported = () => !isHosted() || !!process.env.BLENDER_PATH;
 export async function packFromBlend(
   blend: Buffer,
   name: string,
-  samples = Number(process.env.KC_PACK_SAMPLES) || 96,
-  res = Number(process.env.KC_PACK_RES) || 1500,
+  samples = Number(process.env.KC_PACK_SAMPLES) || 128,
+  res = Number(process.env.KC_PACK_RES) || 2048,
 ): Promise<Buffer> {
   const safe = name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_").slice(0, 80) || "Model";
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), `kc-pack-${crypto.randomBytes(3).toString("hex")}-`));

@@ -276,7 +276,7 @@ export function JualStudio() {
           >
             <UploadCloud size={26} className="text-accent" />
             <p className="text-[14px] text-ink">Drop file .blend hasil perbaikanmu</p>
-            <p className="label-mono text-dim">boleh banyak sekaligus · tiap file langsung dirender (±3–4 menit)</p>
+            <p className="label-mono text-dim">boleh banyak sekaligus · tiap file langsung dirender HD 2048 px (±6–8 menit, jalan bersamaan)</p>
             <input ref={fileInput} type="file" accept=".blend" multiple hidden onChange={(e) => (void addFiles(e.target.files), (e.target.value = ""))} />
           </div>
 

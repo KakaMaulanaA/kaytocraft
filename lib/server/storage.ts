@@ -102,7 +102,7 @@ export const blendKey = (id: string) => `blend/${id}.${BLEND_VER}.blend`;
 /** The user's own fixed .blend (uploaded back) — wins over the generated one. */
 export const fixedBlendKey = (id: string) => `blend/${id}.fixed.blend`;
 /** Ready-to-sell package (renders + exports + INFO, zipped). */
-export const PACK_VER = "p1";
+export const PACK_VER = "p2"; // p2 = HD renders (2048 px, 128 samples)
 export const packKey = (id: string) => `pack/${id}.${PACK_VER}.zip`;
 /** "Siap Jual" items: the user's fixed .blend files, uploaded on their own (not tied to an asset). */
 export const sellRecKey = (id: string) => `sell/${id}.json`;

@@ -27,7 +27,7 @@ import numpy as np
 BASE = os.path.dirname(os.path.abspath(__file__))
 FOLDER_INPUT = os.path.join(BASE, "JUAL")
 FOLDER_OUTPUT = os.path.join(BASE, "OUTPUT_JUAL")
-RESOLUSI = 1500          # px, persegi (standar marketplace)
+RESOLUSI = 2048          # px, persegi (HD: diterima semua marketplace, tajam saat di-zoom)
 SAMPLES = 128            # kualitas render Cycles (naikkan untuk hasil lebih halus)
 PAKAI_GPU = True
 RENDER_CLAY = True
@@ -153,7 +153,17 @@ def buat_paket(blend_file):
     scene.render.engine = "CYCLES"
     set_gpu_rendering(scene, PAKAI_GPU)
     scene.cycles.samples = SAMPLES
+    # Adaptive sampling: noisy areas get more samples, clean ones stop early (sharper for the same time).
+    scene.cycles.use_adaptive_sampling = True
+    scene.cycles.adaptive_threshold = 0.01
     scene.cycles.use_denoising = True
+    try:  # OpenImageDenoise with albedo + normal guides keeps texture detail instead of smearing it
+        scene.cycles.denoiser = "OPENIMAGEDENOISE"
+        scene.cycles.denoising_input_passes = "RGB_ALBEDO_NORMAL"
+        scene.cycles.denoising_prefilter = "ACCURATE"
+        scene.cycles.denoising_quality = "HIGH"
+    except (AttributeError, TypeError):
+        pass
     scene.render.resolution_x = scene.render.resolution_y = RESOLUSI
     scene.render.resolution_percentage = 100
     scene.render.film_transparent = True
