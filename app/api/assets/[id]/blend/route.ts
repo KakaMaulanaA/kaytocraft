@@ -1,4 +1,4 @@
-import { getAsset, modelKey, readFile, saveBuffer } from "@/lib/server/storage";
+import { blendKey, getAsset, modelKey, readFile, saveBuffer } from "@/lib/server/storage";
 import { blendFromModel, blendSupported } from "@/lib/server/blender";
 import { clearRemote, finishRemote, remoteBlendReady, remoteState, startRemote, workerAuthorized } from "@/lib/server/blendRemote";
 import { assemble, validUploadId } from "@/lib/server/uploads";
@@ -23,7 +23,7 @@ export async function GET(req: Request, { params }: Ctx) {
   const key = asset && modelKey(asset);
   if (!asset || !key || asset.status !== "ready") return Response.json({ error: "Model belum tersedia." }, { status: 404 });
 
-  const out = `blend/${asset.id}.blend`;
+  const out = blendKey(asset.id);
   let buf = await readFile(out);
   if (!buf && blendSupported()) {
     try {

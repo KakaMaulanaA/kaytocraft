@@ -1,5 +1,5 @@
 import "server-only";
-import { readFile, removeFile, saveBuffer } from "./storage";
+import { BLEND_VER, blendKey, readFile, removeFile, saveBuffer } from "./storage";
 
 /**
  * .blend for the online version: Netlify has no Blender, so a GitHub Actions job
@@ -21,8 +21,8 @@ export function workerAuthorized(req: Request) {
   return d === 0;
 }
 
-const pendingKey = (id: string) => `blend/${id}.pending.json`;
-const errorKey = (id: string) => `blend/${id}.error.txt`;
+const pendingKey = (id: string) => `blend/${id}.${BLEND_VER}.pending.json`;
+const errorKey = (id: string) => `blend/${id}.${BLEND_VER}.error.txt`;
 
 export type RemoteState = { state: "pending"; since: number } | { state: "error"; error: string } | { state: "none" };
 
@@ -69,7 +69,7 @@ export async function startRemote(asset: { id: string; name: string; format?: st
 }
 
 export async function finishRemote(id: string, result: { buf?: Buffer; error?: string }) {
-  if (result.buf) await saveBuffer(`blend/${id}.blend`, result.buf);
+  if (result.buf) await saveBuffer(blendKey(id), result.buf);
   else await saveBuffer(errorKey(id), (result.error || "Konversi gagal.").slice(0, 500));
   await removeFile(pendingKey(id));
 }

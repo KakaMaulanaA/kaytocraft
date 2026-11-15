@@ -89,12 +89,16 @@ export function deleteAsset(id: string) {
     const asset = await readRec(id);
     if (!asset) return null;
     await kv().del(recKey(id));
-    const keys = [modelKey(asset), `blend/${id}.blend`, `specs/${id}.json`, ...thumbKeys(id)];
+    const keys = [modelKey(asset), `blend/${id}.blend`, blendKey(id), `specs/${id}.json`, ...thumbKeys(id)];
     for (const ext of ["png", "jpg", "webp"]) keys.push(`uploads/${id}.${ext}`);
     await Promise.all(keys.map((k) => (k ? kv().del(k) : null)));
     return asset;
   });
 }
+
+/** Cached .blend. The version part changes when the .blend layout changes (s1 = studio template), so old files are rebuilt. */
+export const BLEND_VER = "s1";
+export const blendKey = (id: string) => `blend/${id}.${BLEND_VER}.blend`;
 
 export function modelKey(asset: Pick<Asset, "id" | "format">) {
   return asset.format ? `models/${asset.id}.${asset.format}` : null;
