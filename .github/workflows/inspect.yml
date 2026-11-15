@@ -1,0 +1,49 @@
+# TEMPORARY (UAT): open .blend files of the live site in Blender and print their structure.
+name: Inspect .blend (UAT)
+on:
+  repository_dispatch:
+    types: [inspect-blend]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: scripts/requirements-blend.txt
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq libxi6 libxxf86vm1 libxfixes3 libxrender1 libxkbcommon0 libsm6 libgl1 libegl1
+      - run: pip install -r scripts/requirements-blend.txt
+      - name: Inspect
+        env:
+          SITE: ${{ github.event.client_payload.site }}
+          IDS: ${{ github.event.client_payload.ids }}
+          WORKER_SECRET: ${{ secrets.BLEND_WORKER_SECRET }}
+        run: |
+          cat > /tmp/insp.py <<'PY'
+          import bpy, sys, os
+          bpy.ops.wm.open_mainfile(filepath=sys.argv[-1])
+          sc = bpy.context.scene
+          print("FILE", os.path.basename(sys.argv[-1]), "| blender", bpy.data.version, "| cams", sorted(o.name for o in sc.objects if o.type == "CAMERA"), "| lights", len([o for o in sc.objects if o.type == "LIGHT"]), "| world", sc.world.name if sc.world else None, "| hdr packed", any(i.packed_file for i in bpy.data.images if i.name.endswith(".hdr")))
+          col = next((c for c in bpy.data.collections if "put your object" in c.name.lower()), None)
+          print("COLLECTION", col.name if col else None, "| palette assets", len([m for m in bpy.data.materials if m.asset_data]))
+          roots = [o for o in sc.objects if o.get("kc_display_scale")]
+          for r in roots: print("ROOT", r.name, "scale", round(r.scale[0], 3), "kc_display_scale", round(float(r["kc_display_scale"]), 3))
+          tv = tf = tt = 0
+          for o in sorted(col.all_objects if col else [], key=lambda o: o.name):
+              if o.type != "MESH": continue
+              me = o.data; tri = sum(1 for p in me.polygons if len(p.vertices) == 3); ng = sum(1 for p in me.polygons if len(p.vertices) > 4)
+              tv += len(me.vertices); tf += len(me.polygons); tt += tri
+              mods = [m.type + (f"({m.width:.4f},{m.segments})" if m.type == "BEVEL" else "") for m in o.modifiers]
+              print("PART", o.name[:30].ljust(30), "v", len(me.vertices), "f", len(me.polygons), "tri", tri, "ngon", ng, "mods", mods, "mat", [m.name for m in me.materials], "smooth", sum(p.use_smooth for p in me.polygons))
+          print("TOTAL v", tv, "f", tf, "tri", tt)
+          PY
+          for id in $IDS; do
+            curl -sf -H "x-worker-secret: $WORKER_SECRET" -o /tmp/$id.blend "$SITE/api/assets/$id/blend?worker=1" || { echo "DOWNLOAD FAILED $id"; continue; }
+            python -c "import sys; sys.argv=['x','/tmp/$id.blend']; exec(open('/tmp/insp.py').read())" 2>/dev/null | grep -E "^(FILE|COLLECTION|ROOT|PART|TOTAL)"
+            echo "-----"
+          done
