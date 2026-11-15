@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Archive, BookOpen, Image as ImageIcon, Layers, Palette, ScanLine, Sparkles, Zap } from "lucide-react";
+import { Archive, BookOpen, Image as ImageIcon, Layers, Package, Palette, ScanLine, Sparkles, Zap } from "lucide-react";
 import { formatBytes, useConfig } from "@/lib/useConfig";
 import { ENGINE_LABELS } from "@/lib/presets";
 
@@ -9,6 +9,7 @@ const NAV = [
   { href: "/?mode=text", label: "Text to 3D", icon: Sparkles, match: (p: string, m: string | null) => p === "/" && m !== "image" },
   { href: "/?mode=image", label: "Image to 3D", icon: ImageIcon, match: (p: string, m: string | null) => p === "/" && m === "image" },
   { href: "/batch", label: "Batch Synthesis", icon: Layers },
+  { href: "/jual", label: "Siap Jual", icon: Package },
   { href: "/topology", label: "Topology & Retopo", icon: ScanLine, phase: 2 },
   { href: "/texture", label: "PBR Texture Lab", icon: Palette, phase: 2 },
   { href: "/bridge", label: "Blender Live Sync", icon: Zap, phase: 3 },

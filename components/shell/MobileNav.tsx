@@ -1,13 +1,14 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Archive, BookOpen, Image as ImageIcon, Layers, Sparkles } from "lucide-react";
+import { Archive, BookOpen, Image as ImageIcon, Layers, Package, Sparkles } from "lucide-react";
 
 /** Bottom tab bar on phones (the sidebar is hidden below md). */
 const TABS = [
   { href: "/?mode=text", label: "Teks", icon: Sparkles, on: (p: string, m: string | null) => p === "/" && m !== "image" },
   { href: "/?mode=image", label: "Gambar", icon: ImageIcon, on: (p: string, m: string | null) => p === "/" && m === "image" },
   { href: "/batch", label: "Batch", icon: Layers, on: (p: string) => p === "/batch" },
+  { href: "/jual", label: "Jual", icon: Package, on: (p: string) => p === "/jual" },
   { href: "/library", label: "Library", icon: BookOpen, on: (p: string) => p === "/library" },
   { href: "/?mode=text#vault", label: "Vault", icon: Archive, on: () => false },
 ];
