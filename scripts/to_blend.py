@@ -19,6 +19,142 @@ import sys
 from pathlib import Path
 
 import bpy
+import bmesh
+import math
+from mathutils import Matrix, Vector
+
+# ---------------------------------------------------------------- clean, editable meshes
+# The web builds parts as triangle soups (every vertex split, rounded boxes = ~600 triangles).
+# Parts tagged by KaytoCraft ("kc" extras) are rebuilt as clean primitives — a box is 8 vertices /
+# 6 quads + a Bevel modifier for the rounded edges, a cylinder has n-gon caps. Everything else is
+# welded (merge by distance) and its triangles joined back into quads.
+
+def _clear_custom_normals(me):
+    for name in ("custom_normal",):
+        if name in me.attributes:
+            me.attributes.remove(me.attributes[name])
+    if getattr(me, "has_custom_normals", False):
+        try:
+            me.normals_split_custom_set([(0.0, 0.0, 0.0)] * len(me.loops))
+        except Exception:
+            pass
+
+
+def _sharp_by_angle(bm, angle=math.radians(30)):
+    for f in bm.faces:
+        f.smooth = True
+    for e in bm.edges:
+        if len(e.link_faces) == 2:
+            e.smooth = e.calc_face_angle(0.0) < angle
+        else:
+            e.smooth = False
+
+
+def _kc(o):
+    v = o.get("kc")
+    if v is None and o.data is not None:
+        v = o.data.get("kc")
+    if v is None:
+        return None
+    try:
+        return v.to_dict()
+    except AttributeError:
+        return dict(v) if isinstance(v, dict) else None
+
+
+def _local_bounds(me):
+    xs = [v.co for v in me.vertices]
+    lo = Vector((min(c.x for c in xs), min(c.y for c in xs), min(c.z for c in xs)))
+    hi = Vector((max(c.x for c in xs), max(c.y for c in xs), max(c.z for c in xs)))
+    return lo, hi
+
+
+def _swap_mesh(o, bm, name):
+    new = bpy.data.meshes.new(name)
+    bm.to_mesh(new)
+    bm.free()
+    for m in o.data.materials:
+        new.materials.append(m)
+    old = o.data
+    o.data = new
+    if old.users == 0:
+        bpy.data.meshes.remove(old)
+    return new
+
+
+def clean_part_as_box(o, me, size, center, bevel, seg=3):
+    """8 vertices / 6 quads at the part's place, rounded edges as an editable Bevel modifier."""
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0, calc_uvs=True)
+    for v in bm.verts:
+        v.co = Vector((v.co.x * size.x, v.co.y * size.y, v.co.z * size.z)) + center
+    for f in bm.faces:
+        f.smooth = True
+    _swap_mesh(o, bm, me.name)
+    if bevel > 1e-5:
+        mod = o.modifiers.new("Bevel", "BEVEL")
+        mod.width = bevel
+        mod.segments = seg
+        mod.limit_method = "NONE"
+        mod.harden_normals = True
+    else:
+        for f in o.data.polygons:
+            f.use_smooth = False
+    return "box"
+
+
+def clean_part(o):
+    me = o.data
+    if not me.vertices:
+        return "empty"
+    kc = _kc(o)
+    lo, hi = _local_bounds(me)
+    size, center = hi - lo, (hi + lo) / 2
+    shape = (kc or {}).get("shape")
+    if shape == "box":
+        return clean_part_as_box(o, me, size, center, float(kc.get("bevel") or 0), int(kc.get("seg") or 3))
+    if shape == "cyl":
+        h = float(kc.get("h") or 0)
+        r1, r2 = float(kc.get("rBottom") or 0), float(kc.get("rTop") or 0)
+        seg = max(6, int(kc.get("seg") or 24))
+        axis = min(range(3), key=lambda i: abs(size[i] - h))  # the height axis in Blender space
+        if h > 0 and abs(size[axis] - h) < max(1e-4, h * 0.02):
+            bm = bmesh.new()
+            bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=seg, radius1=r1, radius2=r2, depth=h, calc_uvs=True)
+            # glTF Y-up -> Blender: the cylinder axis may be Y; turn Z to the measured axis
+            if axis == 1:
+                bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(-90), 3, "X"))
+            elif axis == 0:
+                bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.radians(90), 3, "Y"))
+            bmesh.ops.translate(bm, verts=bm.verts, vec=center)
+            _sharp_by_angle(bm)
+            _swap_mesh(o, bm, me.name)
+            return "cyl"
+    # anything else: weld + quads + smooth by angle
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=max(1e-6, size.length * 1e-5))
+    # Untagged (older models): a closed mesh that fills its bounding box is a (rounded) box.
+    box_vol = size.x * size.y * size.z
+    if box_vol > 0 and min(size) > 0 and all(e.is_manifold for e in bm.edges):
+        ratio = abs(bm.calc_volume()) / box_vol
+        if ratio > 0.93:
+            # corner rounding: nearest vertex to a bounding-box corner sits r*(sqrt(3)-1) away
+            corner = Vector((hi.x, hi.y, hi.z))
+            d = min((v.co - corner).length for v in bm.verts)
+            r = d / (math.sqrt(3) - 1) if d > 1e-6 else 0.0
+            bm.free()
+            return clean_part_as_box(o, me, size, center, r if r < min(size) / 2 else 0.0)
+    bmesh.ops.join_triangles(
+        bm, faces=bm.faces, cmp_seam=False, cmp_sharp=False, cmp_uvs=False, cmp_vcols=False, cmp_materials=True,
+        angle_face_threshold=math.radians(2), angle_shape_threshold=math.radians(180),
+    )
+    _sharp_by_angle(bm)
+    new = _swap_mesh(o, bm, me.name)
+    _clear_custom_normals(new)
+    return "weld"
+
+
 
 argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
 if len(argv) < 2:
@@ -77,6 +213,16 @@ if not imported:
     print("nothing imported")
     sys.exit(4)
 
+cleaned = {}
+for o in imported:
+    if o.type == "MESH":
+        try:
+            k = clean_part(o)
+        except Exception as e:  # never lose a part over a cleanup problem
+            k = f"skip ({e.__class__.__name__})"
+        cleaned[k] = cleaned.get(k, 0) + 1
+print("clean:", cleaned)
+
 # Make sure everything lives in our collection.
 for o in imported:
     for c in list(o.users_collection):
@@ -86,8 +232,6 @@ for o in imported:
         col.objects.link(o)
 
 # Parent top-level objects to a single root empty placed at the bottom-center of the model.
-from mathutils import Vector
-
 bpy.context.view_layer.update()
 pts = []
 for o in imported:
@@ -115,10 +259,6 @@ for o in imported:
     if o.parent is root:
         o.location -= base
 
-# Smooth shading on curved meshes keeps the look from the web viewer.
-for o in imported:
-    if o.type == "MESH" and len(o.data.polygons) > 0:
-        o.data.shade_smooth_by_angle(angle=0.6) if hasattr(o.data, "shade_smooth_by_angle") else None
 
 if use_tpl:
     # Same place and angle as the template's sample object, sized to fill ~78% of the camera frame.

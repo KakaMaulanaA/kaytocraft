@@ -26,6 +26,9 @@ const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 function mesh(parent: THREE.Object3D, geo: THREE.BufferGeometry, mat: THREE.Material, name: string, pos: V3 = [0, 0, 0], rot?: V3) {
   const m = new THREE.Mesh(geo, mat);
   m.name = name;
+  // Recipe of simple parts (box/cylinder) travels to Blender as glTF "extras", so the .blend
+  // can rebuild them as clean editable meshes (8-vertex box + Bevel modifier) instead of triangles.
+  if (geo.userData.kc) m.userData.kc = geo.userData.kc;
   m.position.set(...pos);
   if (rot) m.rotation.set(...rot);
   parent.add(m);
@@ -34,13 +37,16 @@ function mesh(parent: THREE.Object3D, geo: THREE.BufferGeometry, mat: THREE.Mate
 
 function rbox(w: number, h: number, d: number, radius: number, segments = 3) {
   const r = Math.max(0.0005, Math.min(radius, Math.min(w, h, d) / 2 - 0.0005));
-  return new RoundedBoxGeometry(w, h, d, segments, r);
+  const g = new RoundedBoxGeometry(w, h, d, segments, r);
+  g.userData.kc = { shape: "box", bevel: r, seg: segments };
+  return g;
 }
 
 /** Cylinder whose base sits at y=0. */
 function cyl(rTop: number, rBottom: number, h: number, seg = 24) {
   const g = new THREE.CylinderGeometry(rTop, rBottom, h, seg);
   g.translate(0, h / 2, 0);
+  g.userData.kc = { shape: "cyl", rTop, rBottom, h, seg };
   return g;
 }
 

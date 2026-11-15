@@ -24,6 +24,7 @@ export function buildFromSpec(spec: ModelSpec, seed = Math.floor(Math.random() *
     const geo = geometry(p);
     if (!geo) continue;
     const mesh = new THREE.Mesh(geo, matFor(p));
+    if (geo.userData.kc) mesh.userData.kc = geo.userData.kc; // -> glTF extras -> clean part in Blender
     const n = used.get(p.name) ?? 0;
     used.set(p.name, n + 1);
     mesh.name = n ? `${p.name}_${n + 1}` : p.name;
@@ -57,7 +58,9 @@ function geometry(p: SpecPart): THREE.BufferGeometry | null {
     case "box": {
       const [w, h, d] = p.size!;
       const r = Math.min(p.bevel ?? 0, Math.min(w, h, d) / 2 - 0.0002);
-      return r > 0.0004 ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d);
+      const g = r > 0.0004 ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d);
+      g.userData.kc = { shape: "box", bevel: r > 0.0004 ? r : 0, seg: 3 };
+      return g;
     }
     case "wedge": {
       // triangular prism: ridge along X at the top, centered
@@ -72,8 +75,11 @@ function geometry(p: SpecPart): THREE.BufferGeometry | null {
       g.rotateY(Math.PI / 2); // extrusion axis Z -> X, triangle now in the ZY plane
       return g;
     }
-    case "cylinder":
-      return new THREE.CylinderGeometry(p.radiusTop!, p.radiusBottom!, p.height!, seg);
+    case "cylinder": {
+      const g = new THREE.CylinderGeometry(p.radiusTop!, p.radiusBottom!, p.height!, seg);
+      g.userData.kc = { shape: "cyl", rTop: p.radiusTop, rBottom: p.radiusBottom, h: p.height, seg };
+      return g;
+    }
     case "cone":
       return new THREE.ConeGeometry(p.radiusBottom!, p.height!, seg);
     case "sphere":
