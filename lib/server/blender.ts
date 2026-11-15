@@ -31,7 +31,7 @@ export async function findBlender(): Promise<string | null> {
 }
 
 /** Run a script from scripts/ in a background Blender. */
-async function runBlender(scriptName: string, scriptArgs: string[]): Promise<void> {
+async function runBlender(scriptName: string, scriptArgs: string[], opts: { timeoutMs?: number; output?: string } = {}): Promise<void> {
   const exe = await findBlender();
   if (!exe) {
     throw new Error(
@@ -40,7 +40,8 @@ async function runBlender(scriptName: string, scriptArgs: string[]): Promise<voi
   }
   const script = path.join(/* turbopackIgnore: true */ process.cwd(), "scripts", scriptName);
   const args = ["-b", "--factory-startup", "--python-exit-code", "1", "-P", script, "--", ...scriptArgs];
-  const output = scriptArgs[1];
+  const output = opts.output ?? scriptArgs[1];
+  const limit = opts.timeoutMs ?? 180_000;
 
   await new Promise<void>((resolve, reject) => {
     const child = spawn(/* turbopackIgnore: true */ exe, args, { windowsHide: true });
@@ -52,15 +53,15 @@ async function runBlender(scriptName: string, scriptArgs: string[]): Promise<voi
     child.stderr.on("data", keep);
     const timer = setTimeout(() => {
       child.kill();
-      reject(new Error("Blender terlalu lama (lebih dari 3 menit)."));
-    }, 180_000);
+      reject(new Error(`Blender terlalu lama (lebih dari ${Math.round(limit / 60_000)} menit).`));
+    }, limit);
     child.on("error", (e) => {
       clearTimeout(timer);
       reject(new Error(`Gagal menjalankan Blender: ${e.message}`));
     });
     child.on("close", (code) => {
       clearTimeout(timer);
-      if (code === 0 && existsSync(output)) resolve();
+      if (code === 0 && existsSync(/* turbopackIgnore: true */ output)) resolve();
       else reject(new Error(`Konversi Blender gagal (exit ${code}). ${log.split("\n").slice(-6).join(" ").trim()}`));
     });
   });
@@ -97,3 +98,28 @@ export const glbFromBlend = (buf: Buffer) => viaTemp("blend", "glb", buf, (i, o)
 
 /** .blend conversion needs a local Blender install; not available on Netlify. */
 export const blendSupported = () => !isHosted() || !!process.env.BLENDER_PATH;
+
+/**
+ * Ready-to-sell package from a .blend (scripts/render_jual.py): renders from every camera + clay,
+ * .glb/.fbx/.obj, INFO.txt, all zipped. Uses the local GPU when there is one.
+ */
+export async function packFromBlend(
+  blend: Buffer,
+  name: string,
+  samples = Number(process.env.KC_PACK_SAMPLES) || 96,
+  res = Number(process.env.KC_PACK_RES) || 1500,
+): Promise<Buffer> {
+  const safe = name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_").slice(0, 80) || "Model";
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), `kc-pack-${crypto.randomBytes(3).toString("hex")}-`));
+  try {
+    const input = path.join(dir, "in", `${safe}.blend`);
+    const out = path.join(dir, "out");
+    await fs.mkdir(path.dirname(input), { recursive: true });
+    await fs.writeFile(input, blend);
+    const zip = path.join(out, `${safe}.zip`);
+    await runBlender("render_jual.py", ["--file", input, out, String(samples), String(res)], { timeoutMs: 30 * 60_000, output: zip });
+    return await fs.readFile(zip);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+}

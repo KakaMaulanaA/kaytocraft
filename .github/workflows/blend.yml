@@ -1,10 +1,12 @@
-# Makes .blend files for the online (Netlify) version, which has no Blender.
-# Triggered by the site through the GitHub API (repository_dispatch "make-blend").
+# Blender jobs for the online (Netlify) version, which has no Blender.
+# Triggered by the site through the GitHub API (repository_dispatch):
+#   make-blend -> scripts/blend_worker.py (model -> .blend in the studio template)
+#   make-pack  -> scripts/pack_worker.py  (.blend -> ready-to-sell package: renders + exports + ZIP)
 name: Make .blend
 
 on:
   repository_dispatch:
-    types: [make-blend]
+    types: [make-blend, make-pack]
 
 permissions:
   contents: read
@@ -12,7 +14,7 @@ permissions:
 jobs:
   blend:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -28,11 +30,11 @@ jobs:
       - name: Install Blender (bpy)
         run: pip install -r scripts/requirements-blend.txt
 
-      - name: Convert and upload
+      - name: ${{ github.event.action == 'make-pack' && 'Render package and upload' || 'Convert and upload' }}
         env:
           SITE: ${{ github.event.client_payload.site }}
           ASSET_ID: ${{ github.event.client_payload.id }}
           ASSET_NAME: ${{ github.event.client_payload.name }}
           ASSET_FORMAT: ${{ github.event.client_payload.format }}
           WORKER_SECRET: ${{ secrets.BLEND_WORKER_SECRET }}
-        run: python scripts/blend_worker.py
+        run: python scripts/${{ github.event.action == 'make-pack' && 'pack_worker.py' || 'blend_worker.py' }}

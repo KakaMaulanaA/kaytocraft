@@ -504,6 +504,7 @@ export function GeneratorStudio() {
         onReuse={reuse}
         onImport={importModel}
         onSaveToLibrary={saveToLibrary}
+        onChanged={upsert}
         storageUsed={config?.storage.used ?? 0}
       />
       {toastMsg && (

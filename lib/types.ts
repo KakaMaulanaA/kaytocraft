@@ -60,6 +60,8 @@ export interface Asset {
   format?: "glb" | "fbx";
   fileSize?: number;
   hasThumb?: boolean;
+  /** When the user uploaded their own fixed .blend (ms). */
+  blendFixedAt?: number;
   stats?: AssetStats;
   createdAt: number;
   completedAt?: number;

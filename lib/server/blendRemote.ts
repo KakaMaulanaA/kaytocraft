@@ -1,5 +1,5 @@
 import "server-only";
-import { BLEND_VER, blendKey, readFile, removeFile, saveBuffer } from "./storage";
+import { BLEND_VER, PACK_VER, blendKey, packKey, readFile, removeFile, saveBuffer } from "./storage";
 
 /**
  * .blend for the online version: Netlify has no Blender, so a GitHub Actions job
@@ -21,28 +21,34 @@ export function workerAuthorized(req: Request) {
   return d === 0;
 }
 
-const pendingKey = (id: string) => `blend/${id}.${BLEND_VER}.pending.json`;
-const errorKey = (id: string) => `blend/${id}.${BLEND_VER}.error.txt`;
+/** "blend" = .blend conversion, "pack" = ready-to-sell package (renders + exports + ZIP). */
+export type RemoteKind = "blend" | "pack";
+const pendingKey = (id: string, kind: RemoteKind) =>
+  kind === "blend" ? `blend/${id}.${BLEND_VER}.pending.json` : `pack/${id}.${PACK_VER}.pending.json`;
+const errorKey = (id: string, kind: RemoteKind) =>
+  kind === "blend" ? `blend/${id}.${BLEND_VER}.error.txt` : `pack/${id}.${PACK_VER}.error.txt`;
+// Rendering takes longer than converting.
+const MAX_PENDING = { blend: 12 * 60_000, pack: 35 * 60_000 };
 
 export type RemoteState = { state: "pending"; since: number } | { state: "error"; error: string } | { state: "none" };
 
-export async function remoteState(id: string): Promise<RemoteState> {
-  const err = await readFile(errorKey(id));
+export async function remoteState(id: string, kind: RemoteKind = "blend"): Promise<RemoteState> {
+  const err = await readFile(errorKey(id, kind));
   if (err) return { state: "error", error: err.toString("utf8") };
-  const p = await readFile(pendingKey(id));
+  const p = await readFile(pendingKey(id, kind));
   if (p) {
     const since = Number(JSON.parse(p.toString("utf8")).since) || 0;
-    if (Date.now() - since < 12 * 60_000) return { state: "pending", since };
+    if (Date.now() - since < MAX_PENDING[kind]) return { state: "pending", since };
   }
   return { state: "none" };
 }
 
-export async function clearRemote(id: string) {
-  await Promise.all([removeFile(pendingKey(id)), removeFile(errorKey(id))]);
+export async function clearRemote(id: string, kind: RemoteKind = "blend") {
+  await Promise.all([removeFile(pendingKey(id, kind)), removeFile(errorKey(id, kind))]);
 }
 
-export async function startRemote(asset: { id: string; name: string; format?: string }, site: string) {
-  await clearRemote(asset.id);
+export async function startRemote(asset: { id: string; name: string; format?: string }, site: string, kind: RemoteKind = "blend") {
+  await clearRemote(asset.id, kind);
   const res = await fetch(`${process.env.GITHUB_API_URL || "https://api.github.com"}/repos/${process.env.GITHUB_REPO}/dispatches`, {
     method: "POST",
     headers: {
@@ -53,7 +59,7 @@ export async function startRemote(asset: { id: string; name: string; format?: st
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      event_type: "make-blend",
+      event_type: kind === "blend" ? "make-blend" : "make-pack",
       client_payload: { id: asset.id, name: asset.name.slice(0, 80), format: asset.format ?? "glb", site },
     }),
   });
@@ -65,11 +71,11 @@ export async function startRemote(asset: { id: string; name: string; format?: st
         : `GitHub error ${res.status}: ${text}`,
     );
   }
-  await saveBuffer(pendingKey(asset.id), JSON.stringify({ since: Date.now() }));
+  await saveBuffer(pendingKey(asset.id, kind), JSON.stringify({ since: Date.now() }));
 }
 
-export async function finishRemote(id: string, result: { buf?: Buffer; error?: string }) {
-  if (result.buf) await saveBuffer(blendKey(id), result.buf);
-  else await saveBuffer(errorKey(id), (result.error || "Konversi gagal.").slice(0, 500));
-  await removeFile(pendingKey(id));
+export async function finishRemote(id: string, result: { buf?: Buffer; error?: string }, kind: RemoteKind = "blend") {
+  if (result.buf) await saveBuffer(kind === "blend" ? blendKey(id) : packKey(id), result.buf);
+  else await saveBuffer(errorKey(id, kind), (result.error || "Proses gagal.").slice(0, 500));
+  await removeFile(pendingKey(id, kind));
 }

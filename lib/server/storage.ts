@@ -89,7 +89,7 @@ export function deleteAsset(id: string) {
     const asset = await readRec(id);
     if (!asset) return null;
     await kv().del(recKey(id));
-    const keys = [modelKey(asset), `blend/${id}.blend`, blendKey(id), `specs/${id}.json`, ...thumbKeys(id)];
+    const keys = [modelKey(asset), `blend/${id}.blend`, blendKey(id), fixedBlendKey(id), packKey(id), `specs/${id}.json`, ...thumbKeys(id)];
     for (const ext of ["png", "jpg", "webp"]) keys.push(`uploads/${id}.${ext}`);
     await Promise.all(keys.map((k) => (k ? kv().del(k) : null)));
     return asset;
@@ -99,6 +99,11 @@ export function deleteAsset(id: string) {
 /** Cached .blend. The version part changes when the .blend layout changes (s2 = studio template + real-size marker), so old files are rebuilt. */
 export const BLEND_VER = "s2";
 export const blendKey = (id: string) => `blend/${id}.${BLEND_VER}.blend`;
+/** The user's own fixed .blend (uploaded back) — wins over the generated one. */
+export const fixedBlendKey = (id: string) => `blend/${id}.fixed.blend`;
+/** Ready-to-sell package (renders + exports + INFO, zipped). */
+export const PACK_VER = "p1";
+export const packKey = (id: string) => `pack/${id}.${PACK_VER}.zip`;
 
 export function modelKey(asset: Pick<Asset, "id" | "format">) {
   return asset.format ? `models/${asset.id}.${asset.format}` : null;

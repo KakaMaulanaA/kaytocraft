@@ -9,6 +9,7 @@ import {
   FileSpreadsheet,
   Layers,
   Loader2,
+  Package,
   Play,
   RotateCcw,
   Square,
@@ -23,6 +24,7 @@ import { TRIPO_COST } from "@/lib/estimate";
 import { refreshLibrary } from "@/lib/useLibrary";
 import { parseKeywords, type LibraryEntry } from "@/lib/library";
 import { PreviewModal } from "./PreviewModal";
+import { fetchPack } from "@/lib/packDownload";
 
 type RowStatus = "waiting" | "running" | "done" | "failed";
 interface Row {
@@ -207,19 +209,29 @@ export function BatchStudio() {
    * ZIP of every result. "blend" (default) asks for a .blend per model — online that runs on the
    * Blender worker, a few at a time — and falls back to the .glb/.fbx when a .blend can't be made.
    */
-  async function downloadAll(format: "blend" | "model" = "blend") {
+  async function downloadAll(format: "blend" | "model" | "pack" = "blend") {
     const ready = rows.filter((r) => r.status === "done" && r.assetId);
     if (!ready.length) return;
     setZipping(true);
-    setZipNote(format === "blend" ? `Menyiapkan .blend 0/${ready.length}…` : null);
+    setZipNote(format === "blend" ? `Menyiapkan .blend 0/${ready.length}…` : format === "pack" ? `Paket 0/${ready.length}…` : null);
     try {
-      const { zipSync } = await import("fflate");
+      const { zipSync, unzipSync } = await import("fflate");
       const files: Record<string, Uint8Array> = {};
       let made = 0;
       let fellBack = 0;
       const one = async (r: Row, i: number) => {
         const safe = (r.name || r.prompt).replace(/[^\p{L}\p{N}\- ]+/gu, "").trim().replace(/\s+/g, "_") || `model_${i + 1}`;
         const base = `${String(i + 1).padStart(2, "0")}_${safe}`;
+        if (format === "pack") {
+          // Each package is its own ZIP (folder <name>/renders, /model, INFO.txt): merge them under 01_<name>/.
+          const one = await fetchPack(r.assetId!);
+          for (const [path, data] of Object.entries(unzipSync(one))) {
+            if (!path.endsWith("/")) files[`${base}/${path.split("/").slice(1).join("/")}`] = data;
+          }
+          made++;
+          setZipNote(`Paket ${made}/${ready.length}…`);
+          return;
+        }
         if (format === "blend") {
           const blend = await fetchBlend(r.assetId!);
           made++;
@@ -238,7 +250,7 @@ export function BatchStudio() {
       // A few at a time: each .blend online is its own Blender job.
       const queue = ready.map((r, i) => [r, i] as const);
       await Promise.all(
-        Array.from({ length: format === "blend" ? 4 : 1 }, async () => {
+        Array.from({ length: format === "model" ? 1 : 4 }, async () => {
           for (let job = queue.shift(); job; job = queue.shift()) await one(job[0], job[1]);
         }),
       );
@@ -246,7 +258,7 @@ export function BatchStudio() {
       const zip = zipSync(files, { level: 0 });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([zip as BlobPart], { type: "application/zip" }));
-      a.download = `kaytocraft_batch_${ready.length}_${format === "blend" ? "blend" : "model"}.zip`;
+      a.download = `kaytocraft_batch_${ready.length}_${format === "model" ? "model" : format === "pack" ? "siap_jual" : "blend"}.zip`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) {
@@ -429,6 +441,15 @@ export function BatchStudio() {
               className="btn-primary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
             >
               {zipping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} {zipNote ?? "Unduh semua .blend (.zip)"}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadAll("pack")}
+              disabled={!done || zipping || running}
+              title="Paket Siap Jual semua barang: render 3 sudut + clay, .blend/.glb/.fbx/.obj, INFO — dirender Blender di server (pertama kali bisa 10–30 menit untuk banyak barang)"
+              className="btn-secondary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
+            >
+              <Package size={13} /> Paket siap jual
             </button>
             <button
               type="button"

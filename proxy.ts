@@ -17,9 +17,10 @@ export async function proxy(req: NextRequest) {
   if (req.method === "GET" && /^\/api\/assets\/[a-f0-9]{12}\/file$/.test(pathname)) return NextResponse.next();
   // The GitHub Actions .blend worker (checked again, constant-time, inside the routes).
   if (
-    req.method === "POST" &&
     req.headers.get("x-worker-secret") &&
-    (pathname === "/api/upload-chunk" || /^\/api\/assets\/[a-f0-9]{12}\/blend$/.test(pathname))
+    ((req.method === "POST" &&
+      (pathname === "/api/upload-chunk" || /^\/api\/assets\/[a-f0-9]{12}\/(blend|pack)$/.test(pathname))) ||
+      (req.method === "GET" && /^\/api\/assets\/[a-f0-9]{12}\/blend$/.test(pathname) && req.nextUrl.searchParams.has("worker")))
   )
     return NextResponse.next();
 
