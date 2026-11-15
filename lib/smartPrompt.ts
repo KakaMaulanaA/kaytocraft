@@ -14,6 +14,9 @@ const PHRASES: Record<string, [string, Kind]> = {
   "meja kopi": ["coffee table", "noun"],
   "meja rias": ["vanity dressing table", "noun"],
   "kursi kantor": ["office chair", "noun"],
+  "kursi bar": ["bar stool", "noun"],
+  "lemari baju": ["wardrobe", "noun"],
+  "kursi tinggi": ["bar stool", "noun"],
   "sandaran tangan": ["armrests", "noun"],
   "cerobong asap": ["chimney", "noun"],
   "kotak surat": ["mailbox", "noun"],
@@ -52,7 +55,7 @@ const PHRASES: Record<string, [string, Kind]> = {
 const WORDS: Record<string, [string, Kind]> = {
   // furniture & home
   meja: ["table", "noun"], kursi: ["chair", "noun"], sofa: ["sofa", "noun"], bangku: ["bench", "noun"],
-  lemari: ["cabinet", "noun"], rak: ["shelf", "noun"], kasur: ["mattress", "noun"], ranjang: ["bed", "noun"],
+  lemari: ["cabinet", "noun"], rak: ["shelf", "noun"], bumbu: ["spice", "noun"], handuk: ["towel", "noun"], majalah: ["magazine", "noun"], sandal: ["sandal", "noun"], kunci: ["key", "noun"], jemuran: ["drying rack", "noun"], baju: ["clothes", "noun"], kasur: ["mattress", "noun"], ranjang: ["bed", "noun"],
   lampu: ["lamp", "noun"], jam: ["clock", "noun"], pintu: ["door", "noun"], jendela: ["window", "noun"],
   vas: ["vase", "noun"], pot: ["flower pot", "noun"], guci: ["jar", "noun"], botol: ["bottle", "noun"],
   gelas: ["drinking glass", "noun"], cangkir: ["cup", "noun"], mug: ["mug", "noun"], piring: ["plate", "noun"],

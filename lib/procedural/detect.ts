@@ -143,8 +143,20 @@ function materialOf(t: string): { material?: MatKind; woodTone?: string; metalTo
 
 const NUM: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
 
+/**
+ * Objects whose name contains a supported word but that the free generator cannot build:
+ * "shoe rack" is not a bookshelf, "rocking chair" not a plain chair. Left to Gemini (or Library).
+ */
+const NOT_FREE: RegExp[] = [
+  // racks / shelves for things other than books
+  /\b(shelf|shelves|rack)\b.*\b(shoe|shoes|dish|dishes|plate|plates|television|tv|spice|towel|wine|toy|toys|magazine|bike|bicycle|hat|coat|clothes|clothing|key|keys|pot|pots|knife|utensil|drying|sandal|sandals|cd|dvd|game)\b|\b(shoe|dish|spice|towel|wine|toy|magazine|bike|coat|key|drying|tv|television)\s+(shelf|rack)\b/,
+  // chairs the chair builder can't make
+  /\b(rocking chair|wheelchair|lounge chair|beach chair|massage chair|bean bag|hammock|high chair|baby chair)\b/,
+];
+
 export function detectProcedural(text: string): ProcParams | null {
   const t = ` ${text.toLowerCase()} `;
+  if (NOT_FREE.some((re) => re.test(t)) && !/\bbook/.test(t)) return null;
   const hit = KINDS.find(([re]) => re.test(t));
   if (!hit) return null;
   const has = (re: RegExp) => re.test(t);
@@ -168,7 +180,8 @@ export function detectProcedural(text: string): ProcParams | null {
     square: has(/\b(square)\b/),
     oval: has(/\b(oval)\b/),
     scale,
-    tall: has(/\b(tall|high)\b/) ? 1.3 : has(/\b(low|short)\b/) ? 0.75 : 1,
+    // a bar stool is a tall stool (seat at counter height)
+    tall: hit[1] === "stool" && has(/\bbar stool\b/) ? 1.6 : has(/\b(tall|high)\b/) ? 1.3 : has(/\b(low|short)\b/) ? 0.75 : 1,
     long: has(/\b(long|wide)\b/) ? 1.4 : 1,
     legs: legs && legs >= 1 && legs <= 6 ? legs : undefined,
     style: {
