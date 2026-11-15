@@ -47,10 +47,10 @@ export function JualStudio() {
 
   /** Start (if needed) and follow the render of one item until its package is ready. */
   const watch = useCallback(
-    async (id: string) => {
+    async (id: string, since = Date.now()) => {
       if (watching.current.has(id)) return;
       watching.current.add(id);
-      const started = Date.now();
+      const started = since; // upload time, so the counter survives a page reload
       try {
         for (;;) {
           const r = await fetch(`/api/sell/${id}/pack`, { cache: "no-store" }).catch(() => null);
@@ -87,7 +87,7 @@ export function JualStudio() {
       setItems(list);
       for (const it of list) {
         if (it.state === "ready") setStat(it.id, { msg: "Render siap ✓", kind: "ok" });
-        else void watch(it.id); // new / rendering / error (retry) -> render now
+        else void watch(it.id, it.state === "error" ? Date.now() : it.createdAt); // new / rendering / error (retry) -> render now
       }
     } catch {
     } finally {
@@ -225,16 +225,6 @@ export function JualStudio() {
       stop.current = null;
     }
   }
-
-  const Check = (p: { on: boolean; set: (v: boolean) => void; label: string; hint?: string }) => (
-    <label className="flex cursor-pointer items-start gap-2 rounded-[6px] bg-field px-2.5 py-2 hover:bg-raised">
-      <input type="checkbox" checked={p.on} onChange={(e) => p.set(e.target.checked)} className="mt-0.5 accent-[var(--color-accent)]" />
-      <span className="min-w-0">
-        <span className="block text-[13px] text-ink">{p.label}</span>
-        {p.hint && <span className="label-mono block text-dim">{p.hint}</span>}
-      </span>
-    </label>
-  );
 
   return (
     <div className="flex flex-col gap-2 lg:h-full lg:flex-row lg:gap-3 lg:overflow-hidden">
@@ -413,6 +403,19 @@ export function JualStudio() {
         </div>
       </section>
     </div>
+  );
+}
+
+/** One option row (top-level so it keeps its DOM node — and keyboard focus — between renders). */
+function Check(p: { on: boolean; set: (v: boolean) => void; label: string; hint?: string }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-2 rounded-[6px] bg-field px-2.5 py-2 hover:bg-raised focus-within:ring-1 focus-within:ring-accent/50">
+      <input type="checkbox" checked={p.on} onChange={(e) => p.set(e.target.checked)} className="mt-0.5 accent-[var(--color-accent)]" />
+      <span className="min-w-0">
+        <span className="block text-[13px] text-ink">{p.label}</span>
+        {p.hint && <span className="label-mono block text-dim">{p.hint}</span>}
+      </span>
+    </label>
   );
 }
 
