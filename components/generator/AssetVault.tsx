@@ -1,12 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
-import { AlertTriangle, Archive, BookPlus, Box, Download, FileUp, Loader2, Package, RotateCcw, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, Archive, BookPlus, Box, Download, Loader2, RotateCcw, Trash2, Upload } from "lucide-react";
 import { useRef } from "react";
 import type { Asset, PresetId } from "@/lib/types";
 import { PRESETS } from "@/lib/presets";
 import { compact, formatBytes, timeAgo, useConfig } from "@/lib/useConfig";
 import { downloadBlend } from "@/lib/blendDownload";
-import { downloadPack, uploadFixedBlend } from "@/lib/packDownload";
 
 interface Props {
   assets: Asset[];
@@ -153,9 +152,6 @@ function AssetCard({
   onSaveToLibrary: () => void;
 }) {
   const [blendBusy, setBlendBusy] = useState(false);
-  const [packMsg, setPackMsg] = useState<string | null>(null);
-  const [upMsg, setUpMsg] = useState<string | null>(null);
-  const blendInput = useRef<HTMLInputElement>(null);
   const running = a.status === "queued" || a.status === "running";
   const failed = a.status === "failed";
   return (
@@ -253,53 +249,6 @@ function AssetCard({
               {blendBusy ? <Loader2 size={10} className="animate-spin" /> : <Download size={10} />} .BLEND
             </IconBtn>
           )}
-          {a.status === "ready" && blendOk && (
-            <IconBtn
-              label="Unggah .blend yang sudah kamu perbaiki — dipakai untuk .BLEND dan Paket Siap Jual"
-              onClick={() => blendInput.current?.click()}
-            >
-              {upMsg ? <Loader2 size={10} className="animate-spin" /> : <FileUp size={10} />} {upMsg ?? "Unggah .blend"}
-            </IconBtn>
-          )}
-          {a.status === "ready" && blendOk && (
-            <IconBtn
-              label="Paket Siap Jual: render 3 sudut + clay, .blend/.glb/.fbx/.obj, INFO — satu ZIP (pertama kali ±2–6 menit)"
-              onClick={async () => {
-                if (packMsg) return;
-                setPackMsg("Menyiapkan…");
-                try {
-                  await downloadPack(a, setPackMsg);
-                } catch (e) {
-                  alert(e instanceof Error ? e.message : String(e));
-                } finally {
-                  setPackMsg(null);
-                }
-              }}
-            >
-              {packMsg ? <Loader2 size={10} className="animate-spin" /> : <Package size={10} />} {packMsg ?? "Paket"}
-            </IconBtn>
-          )}
-          <input
-            ref={blendInput}
-            type="file"
-            accept=".blend"
-            className="hidden"
-            onClick={(e) => e.stopPropagation()}
-            onChange={async (e) => {
-              const f = e.target.files?.[0];
-              e.target.value = "";
-              if (!f) return;
-              setUpMsg("0%");
-              try {
-                const next = await uploadFixedBlend(a.id, f, (p) => setUpMsg(`${Math.round(p * 100)}%`));
-                onChanged?.(next);
-              } catch (err) {
-                alert(err instanceof Error ? err.message : String(err));
-              } finally {
-                setUpMsg(null);
-              }
-            }}
-          />
           {(a.settings.mode === "text" || a.conceptId) && (
             <IconBtn label="Pakai prompt ini lagi" onClick={onReuse}>
               <RotateCcw size={10} /> Reuse

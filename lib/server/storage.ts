@@ -104,6 +104,11 @@ export const fixedBlendKey = (id: string) => `blend/${id}.fixed.blend`;
 /** Ready-to-sell package (renders + exports + INFO, zipped). */
 export const PACK_VER = "p1";
 export const packKey = (id: string) => `pack/${id}.${PACK_VER}.zip`;
+/** "Siap Jual" items: the user's fixed .blend files, uploaded on their own (not tied to an asset). */
+export const sellRecKey = (id: string) => `sell/${id}.json`;
+export const sellBlendKey = (id: string) => `sell/${id}.blend`;
+export const sellZipKey = (id: string) => `sell/${id}.${PACK_VER}.zip`;
+export const listKeys = (prefix: string) => kv().list(prefix);
 
 export function modelKey(asset: Pick<Asset, "id" | "format">) {
   return asset.format ? `models/${asset.id}.${asset.format}` : null;

@@ -19,8 +19,8 @@ export async function proxy(req: NextRequest) {
   if (
     req.headers.get("x-worker-secret") &&
     ((req.method === "POST" &&
-      (pathname === "/api/upload-chunk" || /^\/api\/assets\/[a-f0-9]{12}\/(blend|pack)$/.test(pathname))) ||
-      (req.method === "GET" && /^\/api\/assets\/[a-f0-9]{12}\/blend$/.test(pathname) && req.nextUrl.searchParams.has("worker")))
+      (pathname === "/api/upload-chunk" || /^\/api\/(assets|sell)\/[a-f0-9]{12}\/(blend|pack)$/.test(pathname))) ||
+      (req.method === "GET" && /^\/api\/(assets|sell)\/[a-f0-9]{12}\/blend$/.test(pathname) && req.nextUrl.searchParams.has("worker")))
   )
     return NextResponse.next();
 

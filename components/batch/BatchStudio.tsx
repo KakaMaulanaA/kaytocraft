@@ -9,7 +9,6 @@ import {
   FileSpreadsheet,
   Layers,
   Loader2,
-  Package,
   Play,
   RotateCcw,
   Square,
@@ -441,15 +440,6 @@ export function BatchStudio() {
               className="btn-primary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
             >
               {zipping ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} />} {zipNote ?? "Unduh semua .blend (.zip)"}
-            </button>
-            <button
-              type="button"
-              onClick={() => downloadAll("pack")}
-              disabled={!done || zipping || running}
-              title="Paket Siap Jual semua barang: render 3 sudut + clay, .blend/.glb/.fbx/.obj, INFO — dirender Blender di server (pertama kali bisa 10–30 menit untuk banyak barang)"
-              className="btn-secondary flex items-center gap-1.5 text-[12px] disabled:opacity-40"
-            >
-              <Package size={13} /> Paket siap jual
             </button>
             <button
               type="button"

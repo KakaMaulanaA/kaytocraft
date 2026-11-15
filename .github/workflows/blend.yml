@@ -36,5 +36,6 @@ jobs:
           ASSET_ID: ${{ github.event.client_payload.id }}
           ASSET_NAME: ${{ github.event.client_payload.name }}
           ASSET_FORMAT: ${{ github.event.client_payload.format }}
+          ASSET_SCOPE: ${{ github.event.client_payload.scope }}
           WORKER_SECRET: ${{ secrets.BLEND_WORKER_SECRET }}
         run: python scripts/${{ github.event.action == 'make-pack' && 'pack_worker.py' || 'blend_worker.py' }}

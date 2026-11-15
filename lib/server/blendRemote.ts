@@ -1,5 +1,5 @@
 import "server-only";
-import { BLEND_VER, PACK_VER, blendKey, packKey, readFile, removeFile, saveBuffer } from "./storage";
+import { BLEND_VER, PACK_VER, blendKey, packKey, readFile, removeFile, saveBuffer, sellZipKey } from "./storage";
 
 /**
  * .blend for the online version: Netlify has no Blender, so a GitHub Actions job
@@ -21,14 +21,20 @@ export function workerAuthorized(req: Request) {
   return d === 0;
 }
 
-/** "blend" = .blend conversion, "pack" = ready-to-sell package (renders + exports + ZIP). */
-export type RemoteKind = "blend" | "pack";
-const pendingKey = (id: string, kind: RemoteKind) =>
-  kind === "blend" ? `blend/${id}.${BLEND_VER}.pending.json` : `pack/${id}.${PACK_VER}.pending.json`;
-const errorKey = (id: string, kind: RemoteKind) =>
-  kind === "blend" ? `blend/${id}.${BLEND_VER}.error.txt` : `pack/${id}.${PACK_VER}.error.txt`;
+/**
+ * "blend" = .blend conversion of an asset, "pack" = ready-to-sell package of an asset,
+ * "sell"  = ready-to-sell package of an uploaded (fixed) .blend from the Siap Jual page.
+ */
+export type RemoteKind = "blend" | "pack" | "sell";
+const PREFIX: Record<RemoteKind, (id: string) => string> = {
+  blend: (id) => `blend/${id}.${BLEND_VER}`,
+  pack: (id) => `pack/${id}.${PACK_VER}`,
+  sell: (id) => `sell/${id}.${PACK_VER}`,
+};
+const pendingKey = (id: string, kind: RemoteKind) => `${PREFIX[kind](id)}.pending.json`;
+const errorKey = (id: string, kind: RemoteKind) => `${PREFIX[kind](id)}.error.txt`;
 // Rendering takes longer than converting.
-const MAX_PENDING = { blend: 12 * 60_000, pack: 35 * 60_000 };
+const MAX_PENDING = { blend: 12 * 60_000, pack: 35 * 60_000, sell: 35 * 60_000 };
 
 export type RemoteState = { state: "pending"; since: number } | { state: "error"; error: string } | { state: "none" };
 
@@ -60,7 +66,7 @@ export async function startRemote(asset: { id: string; name: string; format?: st
     },
     body: JSON.stringify({
       event_type: kind === "blend" ? "make-blend" : "make-pack",
-      client_payload: { id: asset.id, name: asset.name.slice(0, 80), format: asset.format ?? "glb", site },
+      client_payload: { id: asset.id, name: asset.name.slice(0, 80), format: asset.format ?? "glb", site, scope: kind === "sell" ? "sell" : "assets" },
     }),
   });
   if (res.status !== 204) {
@@ -75,7 +81,7 @@ export async function startRemote(asset: { id: string; name: string; format?: st
 }
 
 export async function finishRemote(id: string, result: { buf?: Buffer; error?: string }, kind: RemoteKind = "blend") {
-  if (result.buf) await saveBuffer(kind === "blend" ? blendKey(id) : packKey(id), result.buf);
+  if (result.buf) await saveBuffer(kind === "blend" ? blendKey(id) : kind === "pack" ? packKey(id) : sellZipKey(id), result.buf);
   else await saveBuffer(errorKey(id, kind), (result.error || "Proses gagal.").slice(0, 500));
   await removeFile(pendingKey(id, kind));
 }

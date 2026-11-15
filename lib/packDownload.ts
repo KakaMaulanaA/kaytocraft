@@ -5,11 +5,16 @@ import { appendFile } from "./upload";
  * "Paket Siap Jual" in the browser: waits while the package is made (online on GitHub Actions,
  * ±2–6 min the first time), then downloads it in parts and joins them.
  */
-export async function fetchPack(id: string, onStatus?: (msg: string) => void, signal?: AbortSignal): Promise<Uint8Array> {
+export function fetchPack(id: string, onStatus?: (msg: string) => void, signal?: AbortSignal): Promise<Uint8Array> {
+  return fetchPackAt(`/api/assets/${id}/pack`, onStatus, signal);
+}
+
+/** Same for any package endpoint (/api/assets/<id>/pack, /api/sell/<id>/pack). */
+export async function fetchPackAt(url: string, onStatus?: (msg: string) => void, signal?: AbortSignal): Promise<Uint8Array> {
   const started = Date.now();
   for (;;) {
     if (signal?.aborted) throw new Error("Dihentikan.");
-    const res = await fetch(`/api/assets/${id}/pack`, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store" });
     const body = await res.json().catch(() => null);
     if (res.status === 202) {
       const mins = Math.floor((Date.now() - started) / 60_000);
@@ -24,8 +29,8 @@ export async function fetchPack(id: string, onStatus?: (msg: string) => void, si
     let at = 0;
     for (let i = 0; i < parts; i++) {
       onStatus?.(`Mengunduh ${i + 1}/${parts}…`);
-      let r = await fetch(`/api/assets/${id}/pack?part=${i}`, { cache: "no-store" });
-      if (!r.ok) r = await fetch(`/api/assets/${id}/pack?part=${i}&retry=1`, { cache: "no-store" });
+      let r = await fetch(`${url}?part=${i}`, { cache: "no-store" });
+      if (!r.ok) r = await fetch(`${url}?part=${i}&retry=1`, { cache: "no-store" });
       if (!r.ok) throw new Error(`Unduh paket gagal (${r.status})`);
       const chunk = new Uint8Array(await r.arrayBuffer());
       out.set(chunk, at);

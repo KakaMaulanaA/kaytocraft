@@ -21,6 +21,8 @@ SITE = os.environ.get("SITE", "").rstrip("/")
 ASSET_ID = os.environ.get("ASSET_ID", "")
 NAME = re.sub(r"[^\w\- ]+", "", os.environ.get("ASSET_NAME", "Model")).strip().replace(" ", "_")[:80] or "Model"
 SECRET = os.environ.get("WORKER_SECRET", "")
+# "assets" = an asset of the Vault, "sell" = a fixed .blend uploaded on the Siap Jual page
+SCOPE = "sell" if os.environ.get("ASSET_SCOPE") == "sell" else "assets"
 SAMPLES = os.environ.get("PACK_SAMPLES", "48")
 RES = os.environ.get("PACK_RES", "1500")
 CHUNK = 4 * 1024 * 1024
@@ -43,7 +45,7 @@ def call(method, path, data=None, ctype=None):
 
 def report_error(msg):
     try:
-        call("POST", f"/api/assets/{ASSET_ID}/pack", json.dumps({"error": msg[:400]}).encode(), "application/json")
+        call("POST", f"/api/{SCOPE}/{ASSET_ID}/pack", json.dumps({"error": msg[:400]}).encode(), "application/json")
     except Exception as e:  # noqa: BLE001
         print("could not report error:", e)
 
@@ -52,7 +54,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         src = Path(tmp) / "in" / f"{NAME}.blend"
         src.parent.mkdir()
-        status, body = call("GET", f"/api/assets/{ASSET_ID}/blend?worker=1")
+        status, body = call("GET", f"/api/{SCOPE}/{ASSET_ID}/blend?worker=1")
         if status != 200:
             raise RuntimeError(f".blend belum siap ({status})")
         src.write_bytes(body)
@@ -67,7 +69,7 @@ def main():
         upload_id = secrets.token_hex(8)
         for i in range(0, max(1, (len(data) + CHUNK - 1) // CHUNK)):
             call("POST", f"/api/upload-chunk?id={upload_id}&index={i}", data[i * CHUNK : (i + 1) * CHUNK], "application/octet-stream")
-        call("POST", f"/api/assets/{ASSET_ID}/pack", json.dumps({"uploadId": upload_id}).encode(), "application/json")
+        call("POST", f"/api/{SCOPE}/{ASSET_ID}/pack", json.dumps({"uploadId": upload_id}).encode(), "application/json")
         print(f"done: {len(data)} bytes")
 
 
