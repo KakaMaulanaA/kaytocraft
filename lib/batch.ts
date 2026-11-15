@@ -4,7 +4,7 @@ import { applyVariation } from "./library";
 import { findLibrary } from "./libraryMatch";
 import { smartPrompt } from "./smartPrompt";
 import { detectProcedural } from "./procedural/detect";
-import { groupToGlb } from "./useLibrary";
+import { groupToGlb, refreshLibrary } from "./useLibrary";
 import { appendFile } from "./upload";
 import { requestDesign } from "./designClient";
 import { loadModel, renderThumb } from "./thumb";
@@ -49,9 +49,14 @@ async function saveGroup(group: import("three").Group, source: "procedural" | "c
   return asset;
 }
 
+/** The Library entry was deleted meanwhile (e.g. in another tab): build the item normally instead. */
+class LibraryGone extends Error {}
+
 async function fromLibrary(entry: LibraryEntry, prompt: string): Promise<Asset> {
   if (entry.type === "spec") {
-    const spec = await (await fetch(`/api/library/${entry.id}/spec`)).json();
+    const r = await fetch(`/api/library/${entry.id}/spec`);
+    if (r.status === 404) throw new LibraryGone();
+    const spec = await r.json();
     const { buildFromSpec } = await import("./procedural/fromSpec");
     const varied = applyVariation(spec, prompt, entry.keywords);
     const asset = await saveGroup(buildFromSpec(varied), "library", prompt, varied);
@@ -59,6 +64,7 @@ async function fromLibrary(entry: LibraryEntry, prompt: string): Promise<Asset> 
     return asset;
   }
   const res = await fetch(`/api/library/${entry.id}/use`, { method: "POST", body: JSON.stringify({ prompt }) });
+  if (res.status === 404) throw new LibraryGone();
   const body = await res.json();
   if (!res.ok) throw new Error(body?.error || "Gagal memakai Library");
   const asset = body as Asset;
@@ -113,7 +119,16 @@ export async function makeOne(
   if (engine === "tripo") return { asset: await viaTripo(prompt, ctx.signal), via: "tripo" };
 
   const hit = findLibrary(ctx.library.entries, prompt, ctx.library.dictionary);
-  if (hit) return { asset: await fromLibrary(hit, prompt), via: "library" };
+  if (hit) {
+    try {
+      return { asset: await fromLibrary(hit, prompt), via: "library" };
+    } catch (e) {
+      if (!(e instanceof LibraryGone)) throw e;
+      // stale list: forget the entry for the rest of this batch and carry on without it
+      ctx.library.entries = ctx.library.entries.filter((x) => x.id !== hit.id);
+      refreshLibrary();
+    }
+  }
 
   if (engine === "auto") {
     const params = detectProcedural(core);

@@ -323,9 +323,20 @@ export function GeneratorStudio() {
   const generateFromLibrary = async (entry: LibraryEntry) => {
     setError(null);
     setBusy(true);
+    // The entry may have been deleted meanwhile (another tab): refresh the list and build normally.
+    const gone = async () => {
+      refreshLibrary();
+      setBusy(false);
+      toast("Entri Library itu sudah dihapus — dibuat tanpa Library");
+      if (settings.engine === "demo") return generateFree();
+      if (settings.engine === "gemini" || settings.engine === "claude") return generateDesign(settings.engine);
+      setError("Entri Library itu sudah dihapus. Klik Generate lagi.");
+    };
     try {
       if (entry.type === "spec") {
-        const spec = await (await fetch(`/api/library/${entry.id}/spec`)).json();
+        const sr = await fetch(`/api/library/${entry.id}/spec`);
+        if (sr.status === 404) return void (await gone());
+        const spec = await sr.json();
         const { buildFromSpec } = await import("@/lib/procedural/fromSpec");
         const varied = applyVariation(spec, settings.prompt, entry.keywords);
         const saved = await saveGroup(buildFromSpec(varied), "library", settings.prompt || entry.label, varied);
@@ -333,6 +344,7 @@ export function GeneratorStudio() {
         toast(`📚 ${saved.name} dari Library (gratis)`);
       } else {
         const res = await fetch(`/api/library/${entry.id}/use`, { method: "POST", body: JSON.stringify({ prompt: settings.prompt }) });
+        if (res.status === 404) return void (await gone());
         const body = await res.json();
         if (!res.ok) throw new Error(body?.error || "Gagal memakai Library");
         upsert(body);
