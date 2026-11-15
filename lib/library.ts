@@ -44,13 +44,13 @@ export function matchLibrary(entries: LibraryEntry[], ...texts: string[]): Libra
 
 // ------------------------------------------------------------------ variation for spec entries
 
-const COLORS: Record<string, string> = {
+export const COLORS: Record<string, string> = {
   red: "#b3352c", merah: "#b3352c", blue: "#2f5fa8", biru: "#2f5fa8", green: "#2f7a4f", hijau: "#2f7a4f",
   yellow: "#e0b52e", kuning: "#e0b52e", black: "#202024", hitam: "#202024", white: "#ecebe6", putih: "#ecebe6",
   grey: "#8a8d91", gray: "#8a8d91", brown: "#6b4a2e", coklat: "#6b4a2e", cokelat: "#6b4a2e", purple: "#6b3fa0",
   ungu: "#6b3fa0", orange: "#d96a2b", oranye: "#d96a2b", pink: "#e48aa8", cream: "#e8dcc0", krem: "#e8dcc0",
 };
-const MATERIALS: [RegExp, SpecMaterial][] = [
+export const MATERIALS: [RegExp, SpecMaterial][] = [
   [/\b(wood|wooden|kayu|jati|oak|teak)\b/, "wood"],
   [/\b(metal|steel|iron|besi|baja|logam)\b/, "metal"],
   [/\b(gold|golden|emas)\b/, "gold"],
