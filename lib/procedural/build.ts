@@ -118,11 +118,13 @@ function table(c: Ctx, root: THREE.Group) {
   const { p, r } = c;
   const coffee = p.has(/\bcoffee table\b/) || p.has(/\bside table\b/);
   const desk = p.has(/\b(desk|study desk|office desk)\b/);
+  // bar table: counter height, small top for two to four people
+  const bar = p.has(/\bbar table\b/);
   const round = p.round || p.oval;
-  let H = (coffee ? 0.45 : 0.75) * p.tall;
-  let W = (coffee ? 1.1 : desk ? 1.3 : p.square ? 0.9 : 1.5) * p.long;
-  let D = coffee ? 0.6 : desk ? 0.65 : p.square ? 0.9 : 0.85;
-  if (round && !p.oval) W = D = coffee ? 0.8 : 1.1;
+  let H = bar ? 1.05 * (p.tall > 1 ? 1 : p.tall) : (coffee ? 0.45 : 0.75) * p.tall;
+  let W = (bar ? 1.0 : coffee ? 1.1 : desk ? 1.3 : p.square ? 0.9 : 1.5) * p.long;
+  let D = bar ? 0.6 : coffee ? 0.6 : desk ? 0.65 : p.square ? 0.9 : 0.85;
+  if (round && !p.oval) W = D = bar ? 0.7 : coffee ? 0.8 : 1.1;
   if (p.oval) D = W * 0.6;
   W *= p.scale;
   D *= p.scale;

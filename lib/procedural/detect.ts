@@ -62,8 +62,8 @@ const KINDS: [RegExp, ProcKind, string][] = [
   [/\b(lamp|lantern)\b/, "lamp", "lampu"],
   [/\b(bookshelf|bookcase|book shelf|shelf|shelves|rack)\b/, "bookshelf", "rak"],
   [/\b(wardrobe|closet)\b/, "wardrobe", "lemari pakaian"],
-  [/\b(dresser|drawers|chest of drawers|nightstand|bedside table)\b/, "dresser", "laci"],
-  [/\b(cabinet|cupboard|sideboard|refrigerator)\b/, "cabinet", "lemari"],
+  [/\b(dresser|drawers|chest of drawers|nightstand|bedside table|filing cabinet)\b/, "dresser", "laci"],
+  [/\b(cabinet|cupboard|sideboard)\b/, "cabinet", "lemari"],
   [/\b(stool|bar stool)\b/, "stool", "stool"],
   [/\b(bench)\b/, "bench", "bangku"],
   [/\b(armchair|chair|seat|wheelchair|lounge chair|rocking chair)\b/, "chair", "kursi"],
@@ -152,6 +152,10 @@ const NOT_FREE: RegExp[] = [
   /\b(shelf|shelves|rack)\b.*\b(shoe|shoes|dish|dishes|plate|plates|television|tv|spice|towel|wine|toy|toys|magazine|bike|bicycle|hat|coat|clothes|clothing|key|keys|pot|pots|knife|utensil|drying|sandal|sandals|cd|dvd|game)\b|\b(shoe|dish|spice|towel|wine|toy|magazine|bike|coat|key|drying|tv|television)\s+(shelf|rack)\b/,
   // chairs the chair builder can't make
   /\b(rocking chair|wheelchair|lounge chair|beach chair|massage chair|bean bag|hammock|high chair|baby chair)\b/,
+  // tables / cabinets / shelves of a different build
+  /\b(vanity|dressing table|tv stand|television table|cashier counter|counter|display cabinet|glass cabinet|wall cabinet|medicine cabinet|hanging cabinet|refrigerator|fridge|wall shelf|floating shelf|hanging shelf|corner shelf)\b/,
+  // boxes / bins / pots that are not crates, barrels or vases
+  /\b(jewelry box|jewellery box|tissue box|pencil case|trash bin|trash can|garbage can|coffin|mailbox|cooking pot|saucepan|helmet)\b/,
 ];
 
 export function detectProcedural(text: string): ProcParams | null {
@@ -169,6 +173,8 @@ export function detectProcedural(text: string): ProcParams | null {
   let scale = 1;
   if (has(/\b(small|little|mini|tiny)\b/)) scale = 0.75;
   if (has(/\b(large|big|huge|giant)\b/)) scale = 1.3;
+  // children's furniture: seat/table height for a 4–8 year old
+  const kids = has(/\b(kids|kid|child|children|toddler)\b/);
 
   return {
     kind: hit[1],
@@ -181,8 +187,19 @@ export function detectProcedural(text: string): ProcParams | null {
     oval: has(/\b(oval)\b/),
     scale,
     // a bar stool is a tall stool (seat at counter height)
-    tall: hit[1] === "stool" && has(/\bbar stool\b/) ? 1.6 : has(/\b(tall|high)\b/) ? 1.3 : has(/\b(low|short)\b/) ? 0.75 : 1,
-    long: has(/\b(long|wide)\b/) ? 1.4 : 1,
+    tall:
+      hit[1] === "stool" && has(/\bbar stool\b/)
+        ? 1.6
+        : hit[1] === "dresser" && has(/\bfiling cabinet\b/)
+          ? 1.55
+          : has(/\b(tall|high)\b/)
+            ? 1.3
+            : kids
+              ? 0.65
+              : has(/\b(low|short)\b/)
+                ? 0.75
+                : 1,
+    long: hit[1] === "dresser" && has(/\bfiling cabinet\b/) ? 0.55 : has(/\b(long|wide)\b/) ? 1.4 : 1,
     legs: legs && legs >= 1 && legs <= 6 ? legs : undefined,
     style: {
       modern: has(/\b(modern|minimalist|scandinavian|contemporary)\b/),
