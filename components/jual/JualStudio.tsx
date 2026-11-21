@@ -15,6 +15,8 @@ interface Item {
   size: number;
   createdAt: number;
   state: "new" | "rendering" | "ready" | "error";
+  /** What the render found: renders made, automatic cameras, external files that were not packed. */
+  notes?: { renders: number; autoCamera: boolean; missing: string[] };
 }
 type Status = { msg: string; kind: "busy" | "ok" | "err" };
 
@@ -69,7 +71,12 @@ export function JualStudio() {
           }
           if (r.ok) {
             setStat(id, { msg: "Render siap ✓", kind: "ok" });
-            setItems((cur) => cur.map((x) => (x.id === id ? { ...x, state: "ready" } : x)));
+            // pick up what the render found (missing textures, automatic cameras)
+            const fresh: Item[] = await fetch("/api/sell", { cache: "no-store" })
+              .then((x) => x.json())
+              .catch(() => []);
+            const me = fresh.find((x) => x.id === id);
+            setItems((cur) => cur.map((x) => (x.id === id ? { ...x, state: "ready", notes: me?.notes ?? x.notes } : x)));
           } else {
             setStat(id, { msg: b?.error ?? `Gagal (${r.status})`, kind: "err" });
             setItems((cur) => cur.map((x) => (x.id === id ? { ...x, state: "error" } : x)));
@@ -463,6 +470,22 @@ function Row(p: {
             {kind === "err" && <AlertTriangle size={10} className="shrink-0" />}
             {msg} <span className="text-dim">· {mb(it.size)}</span>
           </span>
+          {it.state === "ready" && it.notes && (it.notes.missing.length > 0 || it.notes.autoCamera || it.notes.renders === 0) && (
+            <span
+              className="label-mono mt-0.5 block text-amber-300"
+              title={
+                it.notes.missing.length
+                  ? `Tidak ikut: ${it.notes.missing.join(", ")}\nDi Blender: File › External Data › Pack Resources, simpan, lalu unggah ulang (ikon ganti file).`
+                  : undefined
+              }
+            >
+              {it.notes.renders === 0
+                ? "⚠ Tidak ada gambar (tidak ada kamera)"
+                : it.notes.missing.length
+                  ? `⚠ ${it.notes.missing.length} tekstur/HDR tidak ikut — pack di Blender lalu unggah ulang`
+                  : "ℹ Kamera dibuat otomatis (file tanpa kamera)"}
+            </span>
+          )}
         </span>
       </button>
       {kind === "err" && (

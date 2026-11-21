@@ -1,4 +1,4 @@
-import { getSell } from "@/lib/server/sell";
+import { getSell, packNotes, setSellNotes } from "@/lib/server/sell";
 import { readFile, saveBuffer, sellBlendKey, sellZipKey } from "@/lib/server/storage";
 import { blendSupported, packFromBlend } from "@/lib/server/blender";
 import { clearRemote, finishRemote, remoteBlendReady, remoteState, startRemote, workerAuthorized } from "@/lib/server/blendRemote";
@@ -41,7 +41,9 @@ export async function GET(req: Request, { params }: Ctx) {
       const job = (async () => {
         const blend = await readFile(sellBlendKey(item.id));
         if (!blend) throw new Error("File .blend hilang.");
-        await saveBuffer(sellZipKey(item.id), await packFromBlend(blend, item.name));
+        const zip = await packFromBlend(blend, item.name);
+        await saveBuffer(sellZipKey(item.id), zip);
+        await setSellNotes(item.id, packNotes(zip)).catch(() => {});
       })()
         .catch((e) => void failed.set(item.id, e instanceof Error ? e.message : String(e)))
         .finally(() => running.delete(item.id));
@@ -75,7 +77,9 @@ export async function POST(req: Request, { params }: Ctx) {
   const body = (await req.json().catch(() => ({}))) as { uploadId?: string; error?: string };
   if (body.uploadId) {
     if (!validUploadId(body.uploadId)) return Response.json({ error: "bad uploadId" }, { status: 400 });
-    await finishRemote(id, { buf: await assemble(body.uploadId, 300 * 1024 * 1024) }, "sell");
+    const zip = await assemble(body.uploadId, 300 * 1024 * 1024);
+    await finishRemote(id, { buf: zip }, "sell");
+    await setSellNotes(id, packNotes(zip)).catch(() => {});
   } else {
     await finishRemote(id, { error: String(body.error ?? "Render gagal.") }, "sell");
   }

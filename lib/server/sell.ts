@@ -1,4 +1,5 @@
 import "server-only";
+import { strFromU8, unzipSync } from "fflate";
 import { listKeys, newId, readFile, removeFile, saveBuffer, sellBlendKey, sellRecKey, sellZipKey } from "./storage";
 import { clearRemote } from "./blendRemote";
 
@@ -8,6 +9,38 @@ export interface SellItem {
   name: string;
   size: number;
   createdAt: number;
+  /** What the last render found (from the package itself). */
+  notes?: PackNotes;
+}
+
+export interface PackNotes {
+  /** Camera renders in the package (clay not counted). */
+  renders: number;
+  /** The file had no camera: three automatic cameras were used. */
+  autoCamera: boolean;
+  /** External textures / HDR the .blend points to but did not pack. */
+  missing: string[];
+}
+
+/** Read a finished package: how many renders, automatic cameras, missing external files. */
+export function packNotes(zip: Buffer): PackNotes {
+  const files = unzipSync(new Uint8Array(zip), { filter: (f) => f.name.endsWith("INFO.txt") || /\/renders\/[^/]+\.png$/.test(f.name) });
+  const names = Object.keys(files);
+  const info = names.find((n) => n.endsWith("INFO.txt"));
+  const text = info ? strFromU8(files[info]) : "";
+  const line = text.split("\n").find((l) => l.startsWith("PERINGATAN"));
+  const missing = line ? line.slice(line.indexOf(":", line.indexOf("pack")) + 1).split(",").map((x) => x.trim()).filter(Boolean) : [];
+  return {
+    renders: names.filter((n) => /\/renders\/[^/]+\.png$/.test(n) && !/_clay\.png$/.test(n)).length,
+    autoCamera: /kamera otomatis/.test(text),
+    missing,
+  };
+}
+
+/** Remember what the render found, so the list can warn about it. */
+export async function setSellNotes(id: string, notes: PackNotes) {
+  const cur = await getSell(id);
+  if (cur) await saveBuffer(sellRecKey(id), JSON.stringify({ ...cur, notes }));
 }
 
 export const validSellId = (id: string) => /^[a-f0-9]{12}$/.test(id);
@@ -53,7 +86,7 @@ export async function createSell(name: string, blend: Buffer): Promise<SellItem>
 
 /** Replace the .blend (a newer fix); the old package is dropped so it is rendered again. */
 export async function replaceSell(item: SellItem, blend: Buffer): Promise<SellItem> {
-  const next = { ...item, size: blend.length, createdAt: Date.now() };
+  const next = { ...item, size: blend.length, createdAt: Date.now(), notes: undefined };
   await saveBuffer(sellBlendKey(item.id), blend);
   await removeFile(sellZipKey(item.id));
   await clearRemote(item.id, "sell");
